@@ -1,0 +1,46 @@
+import { useState, useEffect } from "react";
+import { Toaster } from "react-hot-toast";
+import { AppProvider, useApp } from "./context/AppContext";
+import AuthPage from "./pages/AuthPage";
+import MainLayout from "./components/shared/MainLayout";
+
+function Inner() {
+  const { user, setUser, refreshAll } = useApp();
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem("accessToken");
+    const saved = localStorage.getItem("user");
+    if (token && saved) {
+      try { setUser(JSON.parse(saved)); } catch { localStorage.clear(); }
+    }
+    setReady(true);
+  }, []);
+
+  useEffect(() => { if (user) refreshAll(); }, [user]);
+
+  if (!ready) return (
+    <div className="min-h-screen bg-[#f4f6fb] flex items-center justify-center">
+      <div className="w-8 h-8 border-2 border-[#6c63ff] border-t-transparent rounded-full animate-spin" />
+    </div>
+  );
+
+  if (!user) return <AuthPage onAuth={(u) => setUser(u)} />;
+  return <MainLayout />;
+}
+
+export default function App() {
+  return (
+    <AppProvider>
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          style: { background: "var(--surface)", color: "var(--ink)", border: "1px solid var(--stroke)", fontSize: 13, boxShadow: "var(--shadow-pop)", borderRadius: 12 },
+          success: { iconTheme: { primary: "var(--success)", secondary: "var(--surface)" } },
+          error:   { iconTheme: { primary: "var(--danger)", secondary: "var(--surface)" } },
+        }}
+      />
+      <Inner />
+    </AppProvider>
+  );
+}

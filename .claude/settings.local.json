@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(Set-Location F:\\\\spendsmart_final\\\\backend; $files = @\\(\"server.js\",\"utils\\\\analytics.js\",\"utils\\\\parser.js\",\"utils\\\\dal.js\",\"utils\\\\mailer.js\",\"routes\\\\auth.js\",\"routes\\\\transactions.js\",\"routes\\\\goals.js\",\"routes\\\\notes.js\",\"routes\\\\email.js\",\"routes\\\\ai.js\",\"middleware\\\\auth.js\",\"middleware\\\\turnstile.js\",\"models\\\\User.js\",\"models\\\\Transaction.js\",\"models\\\\Goal.js\",\"models\\\\Note.js\",\"config\\\\db.js\"\\); foreach \\($f in $files\\) { node --check $f; if \\($?\\) { Write-Host \"OK $f\" } else { Write-Host \"FAIL $f\" } })",
+      "Bash(Get-ChildItem \"F:\\\\loan approval\")"
+    ]
+  }
+}
