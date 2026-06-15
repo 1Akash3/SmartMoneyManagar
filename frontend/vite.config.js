@@ -7,5 +7,6 @@ export default defineConfig({
     port: 5173,
     host: true, // listen on LAN so phones on the same WiFi can connect
     proxy: { "/api": "https://smartmoneymanagar.onrender.com" },
+    base: process.env.VITE_BASE_PATH || "/SmartMoneyManagar"
   },
 });
