@@ -11,6 +11,11 @@ const signAccess  = p => jwt.sign(p, process.env.JWT_SECRET,         { expiresIn
 const signRefresh = p => jwt.sign(p, process.env.JWT_REFRESH_SECRET,  { expiresIn: process.env.JWT_REFRESH_EXPIRY || "7d"  });
 const userPayload = u => ({ id: u._id || u.id, name: u.name, email: u.email });
 
+// Guest demo account. Uses a fixed, valid ObjectId so that data queries
+// (userId is an ObjectId in every model) cast cleanly instead of throwing.
+const GUEST_ID    = "000000000000000000000000";
+const GUEST_EMAIL = "guest@spendsmart.com";
+
 // ── Signup ────────────────────────────────────────────────────
 router.post("/signup", verifyTurnstile, async (req, res) => {
   try {
@@ -128,8 +133,8 @@ router.post("/login", verifyTurnstile, async (req, res) => {
     if (!email || !password) return res.status(400).json({ error: "Email and password are required." });
 
     // Guest login
-    if (email === "guest@spendsmart.com" && password === "guest123") {
-      const g = { id: "guest", name: "Guest User", email };
+    if (email === GUEST_EMAIL && password === "guest123") {
+      const g = { id: GUEST_ID, name: "Guest User", email };
       return res.json({ accessToken: signAccess(g), refreshToken: signRefresh(g), user: g });
     }
 
@@ -222,6 +227,9 @@ router.post("/reset-password", async (req, res) => {
 // ── Get current user ──────────────────────────────────────────
 router.get("/me", auth, async (req, res) => {
   try {
+    if (req.user.id === GUEST_ID) {
+      return res.json({ id: GUEST_ID, name: "Guest User", email: GUEST_EMAIL, monthlyBudget: 0, currency: "INR" });
+    }
     const user = await dal.findUserById(req.user.id);
     if (!user) return res.status(404).json({ error: "User not found." });
     const obj = user.toObject ? user.toObject() : { ...user };
