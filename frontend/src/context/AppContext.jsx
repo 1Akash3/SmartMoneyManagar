@@ -1,10 +1,13 @@
 import { createContext, useContext, useReducer, useCallback, useEffect } from "react";
 import * as api from "../services/api";
+import { setCurrency } from "../components/shared/UI";
 
 const AppContext = createContext(null);
 
 export const PERIODS = [
-  { key: "30d", label: "30D", months: 1 },
+  { key: "1d",  label: "1D",  days: 1 },
+  { key: "7d",  label: "7D",  days: 7 },
+  { key: "30d", label: "30D", days: 30 },
   { key: "3m",  label: "3M",  months: 3 },
   { key: "6m",  label: "6M",  months: 6 },
   { key: "1y",  label: "1Y",  months: 12 },
@@ -13,10 +16,11 @@ export const PERIODS = [
 
 function periodDates(key) {
   const p = PERIODS.find(x => x.key === key);
-  if (!p || p.months === null) return {};
+  if (!p) return {};
   const d = new Date();
-  if (p.key === "30d") d.setDate(d.getDate() - 30);
-  else d.setMonth(d.getMonth() - p.months);
+  if (p.days != null)        d.setDate(d.getDate() - (p.days - 1)); // inclusive of today (1d => today only)
+  else if (p.months != null) d.setMonth(d.getMonth() - p.months);
+  else return {};                                                  // "all" — no lower bound
   return { startDate: d.toISOString().slice(0, 10) };
 }
 
@@ -35,6 +39,9 @@ const initial = {
   theme: initialTheme,
   period: "all",
 };
+
+// Apply the saved user's currency before first render so amounts format correctly on load.
+setCurrency(initial.user?.currency);
 
 function reducer(state, action) {
   switch (action.type) {
@@ -67,6 +74,7 @@ export function AppProvider({ children }) {
   const toggleTheme = useCallback(() => dispatch({ type: "SET_THEME", payload: state.theme === "dark" ? "light" : "dark" }), [state.theme]);
 
   const setUser = useCallback(user => {
+    if (user?.currency) setCurrency(user.currency); // keep formatter in sync (login + profile save)
     dispatch({ type: "SET_USER", payload: user });
     if (user) localStorage.setItem("user", JSON.stringify(user));
     else localStorage.removeItem("user");

@@ -85,7 +85,7 @@ router.post("/verify-email", async (req, res) => {
     const accessToken  = signAccess(payload);
     const refreshToken = signRefresh(payload);
     await dal.updateUser(user._id || user.id, { refreshToken });
-    res.json({ accessToken, refreshToken, user: payload });
+    res.json({ accessToken, refreshToken, user: { ...payload, currency: user.currency, monthlyBudget: user.monthlyBudget } });
   } catch (err) {
     console.error("Verify email error:", err.message);
     res.status(500).json({ error: "Verification failed. Please try again." });
@@ -148,7 +148,7 @@ router.post("/login", verifyTurnstile, async (req, res) => {
     const accessToken  = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: rememberMe ? "30d" : process.env.JWT_ACCESS_EXPIRY || "15m" });
     const refreshToken = signRefresh(payload);
     await dal.updateUser(user._id || user.id, { refreshToken });
-    res.json({ accessToken, refreshToken, user: payload });
+    res.json({ accessToken, refreshToken, user: { ...payload, currency: user.currency, monthlyBudget: user.monthlyBudget } });
   } catch (err) {
     res.status(500).json({ error: "Login failed. Please try again." });
   }

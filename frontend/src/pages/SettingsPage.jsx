@@ -6,7 +6,7 @@ import * as api from "../services/api";
 
 export default function SettingsPage() {
   const { user, setUser, logout, analytics, transactions, goals, theme, setTheme } = useApp();
-  const isGuest = user?.id === "guest";
+  const isGuest = user?.email === "guest@spendsmart.com";
 
   const [profile, setProfile] = useState({ name: user?.name || "", monthlyBudget: user?.monthlyBudget || "", currency: user?.currency || "INR" });
   const [passwords, setPasswords] = useState({ currentPassword: "", newPassword: "", confirmPassword: "" });

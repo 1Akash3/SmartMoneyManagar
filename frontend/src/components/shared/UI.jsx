@@ -278,7 +278,23 @@ export function ProgressBar({ value, max, color = "var(--primary)", height = 6 }
 
 /* ── Domain constants ──────────────────────────────────────── */
 
-export const fmt = (n) => "₹" + Math.round(n || 0).toLocaleString("en-IN");
+/* Currency-aware money formatter. The active currency is set from the
+   logged-in user's profile (see setCurrency) so changing it in Settings
+   instantly updates every amount across the app. */
+const CURRENCIES = {
+  INR: { symbol: "₹", locale: "en-IN" },
+  USD: { symbol: "$", locale: "en-US" },
+  EUR: { symbol: "€", locale: "en-IE" },
+  GBP: { symbol: "£", locale: "en-GB" },
+};
+let _currency = "INR";
+export function setCurrency(code) {
+  if (code && CURRENCIES[code]) _currency = code;
+}
+export const fmt = (n) => {
+  const c = CURRENCIES[_currency] || CURRENCIES.INR;
+  return c.symbol + Math.round(n || 0).toLocaleString(c.locale);
+};
 
 export const CAT_COLORS = {
   Food: "#ef4444", Shopping: "#a855f7", Groceries: "#10b981", Travel: "#f59e0b",
