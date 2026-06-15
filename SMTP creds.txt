@@ -1,0 +1,16 @@
+SMTP creds :
+SMTP Server : smtp-relay.brevo.com
+Port : 587
+Login : ae5699001@smtp-brevo.com
+smtp key : xsmtpsib-a8ba061f45fa5627b9d4de16bf98246e6103809daa900b6e8f8dd4a264e17845-ooH4EOE9mOebFyih
+
+[ (Recommended) Verify Your Domain
+Go to Senders, Domains & Dedicated IPs → Add your domain → Follow the DNS verification steps (adds SPF + DKIM records).
+
+⚠️ Gmail and Yahoo now require domain verification — without it, emails to Gmail accounts may silently fail. Brevo recommends attaching and verifying your domain to comply with these requirements ]
+
+
+Cloud Flare 
+
+site key : 0x4AAAAAADiqRl6oycR2qVLB
+secret key : 0x4AAAAAADiqRo6i9lzQLN8ChgRseg4EQYQ
