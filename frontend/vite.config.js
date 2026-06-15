@@ -6,6 +6,6 @@ export default defineConfig({
   server: {
     port: 5173,
     host: true, // listen on LAN so phones on the same WiFi can connect
-    proxy: { "/api": "http://localhost:5000" },
+    proxy: { "/api": "https://smartmoneymanagar.onrender.com" },
   },
 });
