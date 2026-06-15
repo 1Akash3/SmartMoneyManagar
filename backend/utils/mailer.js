@@ -13,18 +13,56 @@ function createTransporter() {
   });
 }
 
+// Send via Brevo's HTTP API (HTTPS / port 443). Required on hosts like Render
+// that block outbound SMTP ports (25/465/587) — SMTP there fails with
+// "Connection timeout". Uses BREVO_API_KEY (an "xkeysib-..." key, which is
+// different from the "xsmtpsib-..." SMTP key).
+async function sendViaApi({ to, subject, html }) {
+  const resp = await fetch("https://api.brevo.com/v3/smtp/email", {
+    method: "POST",
+    headers: {
+      "api-key": process.env.BREVO_API_KEY,
+      "content-type": "application/json",
+      accept: "application/json",
+    },
+    body: JSON.stringify({
+      sender: { name: "SpendSmart", email: process.env.SMTP_FROM },
+      to: [{ email: to }],
+      subject,
+      htmlContent: html,
+    }),
+  });
+  if (!resp.ok) {
+    const detail = await resp.text().catch(() => "");
+    throw new Error(`Brevo API ${resp.status}: ${detail.slice(0, 200)}`);
+  }
+}
+
 async function sendMail({ to, subject, html }) {
+  // Prefer the HTTP API when a key is configured (works on Render; SMTP is blocked there).
+  if (process.env.BREVO_API_KEY) {
+    try {
+      await sendViaApi({ to, subject, html });
+      console.log(`[Mailer] Sent "${subject}" -> ${to} (Brevo API)`);
+      return { sent: true };
+    } catch (err) {
+      console.error("[Mailer] Brevo API send failed:", err.message);
+      return { sent: false, reason: err.message };
+    }
+  }
+
+  // Fallback: SMTP — fine for local dev, but blocked on most PaaS hosts.
   const t = createTransporter();
   if (!t) {
-    console.warn("[Mailer] SMTP not configured — skipping email.");
-    return { sent: false, reason: "SMTP not configured" };
+    console.warn("[Mailer] Email not configured (set BREVO_API_KEY, or SMTP_* for local) — skipping.");
+    return { sent: false, reason: "Email not configured" };
   }
   try {
     await t.sendMail({ from: `SpendSmart <${process.env.SMTP_FROM}>`, to, subject, html });
-    console.log(`[Mailer] Sent "${subject}" → ${to}`);
+    console.log(`[Mailer] Sent "${subject}" -> ${to} (SMTP)`);
     return { sent: true };
   } catch (err) {
-    console.error("[Mailer] Send failed:", err.message);
+    console.error("[Mailer] SMTP send failed:", err.message);
     return { sent: false, reason: err.message };
   }
 }
