@@ -7,6 +7,11 @@ const { connectDB } = require("./config/db");
 
 const app = express();
 
+// Behind Render's load balancer (and the Vercel /api proxy), so trust the
+// first proxy hop. Lets express-rate-limit and req.ip see the real client IP
+// instead of the proxy, and silences its X-Forwarded-For ValidationError.
+app.set("trust proxy", 1);
+
 // Security
 app.use(helmet({ crossOriginResourcePolicy: false }));
 app.use(cors({ origin: process.env.CLIENT_URL || "http://localhost:5173", credentials: true }));
