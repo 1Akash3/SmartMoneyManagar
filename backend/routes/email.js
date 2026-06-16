@@ -64,4 +64,33 @@ router.post("/report", auth, async (req, res) => {
   }
 });
 
+// ── Contact / Support / Bug report (public — no auth) ─────────────
+const esc = s => String(s || "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+router.post("/feedback", async (req, res) => {
+  try {
+    const { name, email, type, message } = req.body;
+    if (!name || !email || !message) return res.status(400).json({ error: "Name, email and message are required." });
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return res.status(400).json({ error: "Please enter a valid email address." });
+
+    const kind = type === "bug" ? "Bug Report" : type === "feedback" ? "Feedback" : "Support Request";
+    const to   = process.env.SUPPORT_EMAIL || process.env.SMTP_FROM;
+    if (!to) return res.status(500).json({ error: "Support inbox not configured." });
+
+    const html = `<div style="font-family:sans-serif;max-width:560px;margin:auto;padding:24px;border:1px solid #e8ecf4;border-radius:12px">
+      <h2 style="color:#6c63ff;margin:0 0 12px">New ${esc(kind)} — SpendSmart</h2>
+      <p style="margin:4px 0;color:#4a5168"><strong>From:</strong> ${esc(name)} &lt;${esc(email)}&gt;</p>
+      <p style="margin:4px 0;color:#4a5168"><strong>Type:</strong> ${esc(kind)}</p>
+      <hr style="border:none;border-top:1px solid #eee;margin:12px 0" />
+      <p style="white-space:pre-wrap;color:#333;font-size:14px">${esc(String(message).slice(0, 5000))}</p>
+    </div>`;
+
+    const result = await sendMail({ to, subject: `SpendSmart — ${kind} from ${name}`, html, replyTo: email });
+    if (!result.sent) return res.status(502).json({ error: "Couldn't send right now. Please email us directly." });
+    res.json({ success: true, message: "Thanks! We'll get back to you soon." });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to send. Please try again." });
+  }
+});
+
 module.exports = router;

@@ -3,6 +3,9 @@ import { Toaster } from "react-hot-toast";
 import { AppProvider, useApp } from "./context/AppContext";
 import AuthPage from "./pages/AuthPage";
 import MainLayout from "./components/shared/MainLayout";
+import LegalPage from "./pages/LegalPage";
+import ContactPage from "./pages/ContactPage";
+import CookieConsent from "./components/shared/CookieConsent";
 
 function Inner() {
   const { user, setUser, refreshAll } = useApp();
@@ -30,6 +33,21 @@ function Inner() {
 }
 
 export default function App() {
+  // Public, logged-out-accessible pages (real URLs for SEO + linking).
+  const path = typeof window !== "undefined" ? window.location.pathname : "/";
+  if (path === "/privacy" || path === "/terms") {
+    return (<>
+      <LegalPage type={path === "/terms" ? "terms" : "privacy"} />
+      <CookieConsent />
+    </>);
+  }
+  if (path === "/contact") {
+    return (<>
+      <ContactPage />
+      <CookieConsent />
+    </>);
+  }
+
   return (
     <AppProvider>
       <Toaster
@@ -41,6 +59,7 @@ export default function App() {
         }}
       />
       <Inner />
+      <CookieConsent />
     </AppProvider>
   );
 }

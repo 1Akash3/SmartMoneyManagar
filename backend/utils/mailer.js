@@ -17,7 +17,7 @@ function createTransporter() {
 // that block outbound SMTP ports (25/465/587) — SMTP there fails with
 // "Connection timeout". Uses BREVO_API_KEY (an "xkeysib-..." key, which is
 // different from the "xsmtpsib-..." SMTP key).
-async function sendViaApi({ to, subject, html }) {
+async function sendViaApi({ to, subject, html, replyTo }) {
   const resp = await fetch("https://api.brevo.com/v3/smtp/email", {
     method: "POST",
     headers: {
@@ -28,6 +28,7 @@ async function sendViaApi({ to, subject, html }) {
     body: JSON.stringify({
       sender: { name: "SpendSmart", email: process.env.SMTP_FROM },
       to: [{ email: to }],
+      ...(replyTo ? { replyTo: { email: replyTo } } : {}),
       subject,
       htmlContent: html,
     }),
@@ -38,11 +39,11 @@ async function sendViaApi({ to, subject, html }) {
   }
 }
 
-async function sendMail({ to, subject, html }) {
+async function sendMail({ to, subject, html, replyTo }) {
   // Prefer the HTTP API when a key is configured (works on Render; SMTP is blocked there).
   if (process.env.BREVO_API_KEY) {
     try {
-      await sendViaApi({ to, subject, html });
+      await sendViaApi({ to, subject, html, replyTo });
       console.log(`[Mailer] Sent "${subject}" -> ${to} (Brevo API)`);
       return { sent: true };
     } catch (err) {
@@ -58,7 +59,7 @@ async function sendMail({ to, subject, html }) {
     return { sent: false, reason: "Email not configured" };
   }
   try {
-    await t.sendMail({ from: `SpendSmart <${process.env.SMTP_FROM}>`, to, subject, html });
+    await t.sendMail({ from: `SpendSmart <${process.env.SMTP_FROM}>`, to, subject, html, ...(replyTo ? { replyTo } : {}) });
     console.log(`[Mailer] Sent "${subject}" -> ${to} (SMTP)`);
     return { sent: true };
   } catch (err) {

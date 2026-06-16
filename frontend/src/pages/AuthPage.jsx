@@ -422,6 +422,12 @@ export default function AuthPage({ onAuth }) {
               </div>
             </>
           )}
+
+          <div className="mt-8 pt-4 border-t border-stroke flex items-center justify-center gap-4 text-[11px] text-faint">
+            <a href="/privacy" className="hover:text-primary transition-colors">Privacy</a>
+            <a href="/terms" className="hover:text-primary transition-colors">Terms</a>
+            <a href="/contact" className="hover:text-primary transition-colors">Contact</a>
+          </div>
         </motion.div>
       </div>
     </div>
