@@ -4,6 +4,7 @@ import toast from "react-hot-toast";
 import * as api from "../services/api";
 import { useApp } from "../context/AppContext";
 import { Input, Alert, Icon } from "../components/shared/UI";
+import { trackEvent } from "../utils/analytics";
 
 function PasswordInput({ label, value, onChange, placeholder, error }) {
   const [show, setShow] = useState(false);
@@ -143,6 +144,7 @@ export default function AuthPage({ onAuth }) {
       if (mode === "signup") {
         const { data } = await api.signup({ ...form, turnstileToken });
         if (data.requiresVerification) {
+          trackEvent("sign_up", { method: "password" });
           setVerifyEmail(data.email);
           setMode("verify");
           setResendCooldown(60);
@@ -160,6 +162,7 @@ export default function AuthPage({ onAuth }) {
         localStorage.setItem("accessToken", data.accessToken);
         localStorage.setItem("refreshToken", data.refreshToken);
         setUser(data.user);
+        trackEvent("login", { method: "password" });
         toast.success(`Welcome back, ${data.user.name}.`);
         onAuth(data.user);
       }
@@ -251,6 +254,7 @@ export default function AuthPage({ onAuth }) {
       localStorage.setItem("accessToken", data.accessToken);
       localStorage.setItem("refreshToken", data.refreshToken);
       setUser(data.user);
+      trackEvent("login", { method: "guest" });
       toast.success("Logged in as guest.");
       onAuth(data.user);
     } catch { toast.error("Guest login unavailable. Please sign up."); }

@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useApp } from "../../context/AppContext";
+import { trackPage } from "../../utils/analytics";
 import DashboardPage    from "../../pages/DashboardPage";
 import TransactionsPage from "../../pages/TransactionsPage";
 import GoalsPage        from "../../pages/GoalsPage";
@@ -36,6 +37,8 @@ export default function MainLayout() {
   const [pageParams, setPageParams] = useState(null);
   const [sideOpen, setSideOpen] = useState(false);
   const Page = PAGES[page];
+
+  useEffect(() => { trackPage("/" + page); }, [page]); // analytics page view per in-app view
 
   function navigate(id, params = null) { setPage(id); setPageParams(params); setSideOpen(false); }
   function handleLogout() { logout(); toast.success("Signed out."); }

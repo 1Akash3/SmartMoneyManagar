@@ -6,6 +6,7 @@ import MainLayout from "./components/shared/MainLayout";
 import LegalPage from "./pages/LegalPage";
 import ContactPage from "./pages/ContactPage";
 import CookieConsent from "./components/shared/CookieConsent";
+import { initAnalytics } from "./utils/analytics";
 
 function Inner() {
   const { user, setUser, refreshAll } = useApp();
@@ -33,6 +34,8 @@ function Inner() {
 }
 
 export default function App() {
+  useEffect(() => { initAnalytics(); }, []);
+
   // Public, logged-out-accessible pages (real URLs for SEO + linking).
   const path = typeof window !== "undefined" ? window.location.pathname : "/";
   if (path === "/privacy" || path === "/terms") {
