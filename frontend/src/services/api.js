@@ -8,11 +8,19 @@ api.interceptors.request.use(cfg => {
   return cfg;
 });
 
+function forceRelogin() {
+  const theme = localStorage.getItem("theme");
+  localStorage.clear();
+  if (theme) localStorage.setItem("theme", theme); // keep the user's theme choice
+  window.location.href = "/";
+}
+
 api.interceptors.response.use(
   res => res,
   async err => {
     const original = err.config;
-    if (err.response?.status === 401 && err.response?.data?.code === "TOKEN_EXPIRED" && !original._retry) {
+    const code = err.response?.data?.code;
+    if (err.response?.status === 401 && code === "TOKEN_EXPIRED" && !original._retry) {
       original._retry = true;
       try {
         const rt = localStorage.getItem("refreshToken");
@@ -21,9 +29,15 @@ api.interceptors.response.use(
         original.headers.Authorization = `Bearer ${data.accessToken}`;
         return api(original);
       } catch {
-        localStorage.clear();
-        window.location.href = "/";
+        forceRelogin();
+        return new Promise(() => {}); // halt while the page redirects
       }
+    }
+    // Token rejected outright (no token, or invalid signature after a JWT secret
+    // rotation) → clear the stale session and send the user to a fresh login.
+    if (err.response?.status === 401 && (code === "TOKEN_INVALID" || code === "NO_TOKEN")) {
+      forceRelogin();
+      return new Promise(() => {});
     }
     return Promise.reject(err);
   }
