@@ -1,11 +1,10 @@
 import { useState, useEffect } from "react";
 import api from "../../services/api";
-import { Icon } from "./UI";
 
 /**
- * Live market prices strip (gold, USD/INR, Nifty 50, …). Pulls from the
- * cached /api/market backend route. Renders nothing until data is available,
- * so it stays hidden when the backend key isn't configured yet.
+ * Vertical live-market ticker for the sidebar (gold, USD/INR, BTC, …).
+ * Pulls from the cached /api/market route. Renders nothing until data is
+ * available, so it stays hidden when the backend key isn't configured.
  */
 function priceStr(price, currency) {
   const sym = currency === "INR" ? "₹" : currency === "USD" ? "$" : "";
@@ -28,20 +27,24 @@ export default function MarketWidget() {
   if (!items || !items.length) return null;
 
   return (
-    <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
-      {items.map(it => {
-        const up = it.changePercent >= 0;
-        return (
-          <div key={it.symbol} className="flex-shrink-0 bg-surface border border-stroke rounded-xl px-3.5 py-2 min-w-[132px]">
-            <p className="text-[11px] text-muted font-medium truncate">{it.label}</p>
-            <p className="text-sm font-bold text-ink tnum mt-0.5">{priceStr(it.price, it.currency)}</p>
-            <span className={`inline-flex items-center gap-0.5 text-[11px] font-semibold ${up ? "text-success" : "text-danger"}`}>
-              <Icon name={up ? "trendingUp" : "trendingDown"} size={11} />
-              {up ? "+" : ""}{it.changePercent.toFixed(2)}%
-            </span>
-          </div>
-        );
-      })}
+    <div className="mx-3 mb-3 p-3 rounded-xl bg-surface2 border border-stroke">
+      <p className="text-[10px] font-semibold text-faint uppercase tracking-widest mb-2">Markets</p>
+      <div className="space-y-2">
+        {items.map(it => {
+          const up = it.changePercent >= 0;
+          return (
+            <div key={it.symbol} className="flex items-center justify-between gap-2">
+              <span className="text-[11px] text-ink2 truncate">{it.label}</span>
+              <div className="text-right flex-shrink-0">
+                <p className="text-xs font-semibold text-ink tnum leading-tight">{priceStr(it.price, it.currency)}</p>
+                <p className={`text-[10px] font-semibold tnum leading-tight ${up ? "text-success" : "text-danger"}`}>
+                  {up ? "+" : ""}{it.changePercent.toFixed(2)}%
+                </p>
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }

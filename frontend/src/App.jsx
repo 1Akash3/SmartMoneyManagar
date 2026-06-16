@@ -7,6 +7,7 @@ import LegalPage from "./pages/LegalPage";
 import ContactPage from "./pages/ContactPage";
 import CookieConsent from "./components/shared/CookieConsent";
 import { initAnalytics } from "./utils/analytics";
+import { CoinLoader } from "./components/shared/UI";
 
 function Inner() {
   const { user, setUser, refreshAll } = useApp();
@@ -24,8 +25,8 @@ function Inner() {
   useEffect(() => { if (user) refreshAll(); }, [user]);
 
   if (!ready) return (
-    <div className="min-h-screen bg-[#f4f6fb] flex items-center justify-center">
-      <div className="w-8 h-8 border-2 border-[#6c63ff] border-t-transparent rounded-full animate-spin" />
+    <div className="min-h-screen bg-bg flex items-center justify-center">
+      <CoinLoader size={52} />
     </div>
   );
 

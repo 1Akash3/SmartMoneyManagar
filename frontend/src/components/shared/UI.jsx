@@ -134,10 +134,19 @@ export function Spinner({ size = "md", light = false }) {
   return <div className={`${s} border-2 ${light ? "border-white/80" : "border-primary"} border-t-transparent rounded-full animate-spin`} />;
 }
 
+/* 3D flipping-coin loader — used for full-page / feature loading states. */
+export function CoinLoader({ size = 52 }) {
+  return (
+    <div className="coin-stage" style={{ width: size, height: size }}>
+      <div className="coin-loader" style={{ width: size, height: size, fontSize: Math.round(size * 0.46) }}>₹</div>
+    </div>
+  );
+}
+
 export function PageSpinner() {
   return (
-    <div className="flex flex-col items-center justify-center py-24 gap-3">
-      <Spinner size="lg" />
+    <div className="flex flex-col items-center justify-center py-24 gap-4">
+      <CoinLoader size={54} />
       <p className="text-sm text-muted">Loading</p>
     </div>
   );

@@ -6,8 +6,15 @@ import api from "../services/api";
  * /api/email/feedback endpoint (no auth required) which emails support.
  * Self-contained — does not depend on app context or toast.
  */
+const initialType = (() => {
+  try {
+    const t = new URLSearchParams(window.location.search).get("type");
+    return ["bug", "feedback", "support"].includes(t) ? t : "support";
+  } catch { return "support"; }
+})();
+
 export default function ContactPage() {
-  const [form, setForm] = useState({ name: "", email: "", type: "support", message: "" });
+  const [form, setForm] = useState({ name: "", email: "", type: initialType, message: "" });
   const [status, setStatus] = useState(null); // null | "sending" | "sent" | "error"
   const [error, setError] = useState("");
 

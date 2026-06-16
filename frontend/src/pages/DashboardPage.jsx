@@ -4,7 +4,6 @@ import toast from "react-hot-toast";
 import { useApp, PERIODS } from "../context/AppContext";
 import { Card, KPICard, SectionHeader, Btn, Modal, Input, Select, Textarea, EmptyState, PageSpinner, Alert, ProgressBar, Icon, MerchantAvatar, fmt } from "../components/shared/UI";
 import { CategoryPie, WeeklyBar, DailyLine, CashFlow } from "../components/shared/Charts";
-import MarketWidget from "../components/shared/MarketWidget";
 import * as api from "../services/api";
 
 const PRIORITIES = ["Savings", "Food", "Health", "Travel", "Shopping", "Education", "Family", "Entertainment", "Others"];
@@ -171,8 +170,6 @@ export default function DashboardPage({ onNavigate, params }) {
           <Btn variant="secondary" icon="plus" onClick={() => onNavigate?.("transactions")}>Add Manually</Btn>
         </div>
       </div>
-
-      <MarketWidget />
 
       {!analytics ? (
         <Card>

@@ -208,22 +208,22 @@ export default function SettingsPage() {
           <Alert type="info">All data is stored securely in MongoDB Atlas, retained without time limits, and analysed over any period you choose from the dashboard.</Alert>
 
           <div className="mt-4 pt-4 border-t border-stroke">
-            <SectionHeader title="About" />
-            <div className="space-y-1.5 text-sm">
+            <SectionHeader title="Help & Support" sub="Get help, report an issue, and review our policies" />
+            <div className="grid grid-cols-2 gap-2.5">
               {[
-                { l: "Version",   v: "5.0.0" },
-                { l: "Frontend",  v: "React 18 · Vite · Tailwind CSS · Recharts · Framer Motion" },
-                { l: "Backend",   v: "Node.js · Express · MongoDB Atlas" },
-                { l: "Auth",      v: "JWT + refresh tokens · bcrypt (12 rounds) · email verification" },
-                { l: "AI Engine", v: "Multi-signal anomaly detection · NLP categorisation · forecasting · assistant" },
-                { l: "Files",     v: "CSV, XLSX, XLS, PDF statement import" },
-              ].map(s => (
-                <div key={s.l} className="flex gap-3 py-2 border-b border-stroke last:border-0">
-                  <span className="text-xs font-semibold text-muted w-24 flex-shrink-0 pt-0.5">{s.l}</span>
-                  <span className="text-xs text-ink2">{s.v}</span>
-                </div>
+                { label: "Contact us",         icon: "mail",          href: "/contact" },
+                { label: "Report a bug",       icon: "alertTriangle", href: "/contact?type=bug" },
+                { label: "Privacy Policy",     icon: "shield",        href: "/privacy" },
+                { label: "Terms & Conditions", icon: "fileText",      href: "/terms" },
+              ].map(l => (
+                <a key={l.label} href={l.href}
+                  className="flex items-center gap-2.5 p-3 rounded-xl bg-surface2 border border-stroke hover:border-strokeStrong transition-colors text-sm text-ink2">
+                  <span className="text-primary"><Icon name={l.icon} size={16} /></span>
+                  {l.label}
+                </a>
               ))}
             </div>
+            <p className="text-[11px] text-faint mt-3">SpendSmart v5.0.0</p>
           </div>
         </Card>
       )}

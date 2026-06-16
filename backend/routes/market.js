@@ -8,10 +8,9 @@ const router  = express.Router();
  * Symbols that aren't available on your plan are skipped gracefully.
  */
 const ASSETS = [
-  { symbol: "XAU/USD",  label: "Gold (oz)", currency: "USD" },
-  { symbol: "USD/INR",  label: "USD / INR", currency: "INR" },
-  { symbol: "NIFTY 50", label: "Nifty 50",  currency: "INR" },
-  { symbol: "BTC/USD",  label: "Bitcoin",   currency: "USD" },
+  { symbol: "XAU/USD", label: "Gold (oz)", currency: "USD" },
+  { symbol: "USD/INR", label: "USD / INR", currency: "INR" },
+  { symbol: "BTC/USD", label: "Bitcoin",   currency: "USD" },
 ];
 
 const TTL = 10 * 60 * 1000;

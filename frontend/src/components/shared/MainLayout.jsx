@@ -8,6 +8,7 @@ import GoalsPage        from "../../pages/GoalsPage";
 import ReportsPage      from "../../pages/ReportsPage";
 import SettingsPage     from "../../pages/SettingsPage";
 import NotificationBell from "./NotificationBell";
+import MarketWidget from "./MarketWidget";
 import { Icon } from "./UI";
 import toast from "react-hot-toast";
 
@@ -78,6 +79,8 @@ export default function MainLayout() {
         </div>
       )}
 
+      <MarketWidget />
+
       <div className="px-3 pb-4 border-t border-stroke pt-3">
         <div className="flex items-center gap-2.5 px-2 mb-2">
           <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center text-xs font-bold text-primary flex-shrink-0">
@@ -93,6 +96,11 @@ export default function MainLayout() {
           <Icon name="logout" size={13} />
           Sign Out
         </button>
+        <div className="flex items-center gap-3 px-3 mt-2 text-[10px] text-faint">
+          <a href="/privacy" className="hover:text-primary transition-colors">Privacy</a>
+          <a href="/terms" className="hover:text-primary transition-colors">Terms</a>
+          <a href="/contact" className="hover:text-primary transition-colors">Help</a>
+        </div>
       </div>
     </div>
   );
