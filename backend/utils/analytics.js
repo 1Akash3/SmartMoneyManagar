@@ -162,6 +162,7 @@ function computeAnalytics(transactions, options = {}) {
   // Subscription detection: a known service (keyword or "Subscriptions" category),
   // OR ANY merchant charging a near-fixed amount across 2+ different months — so
   // real recurring bills (gym, SaaS, local OTT, etc.) are caught, not just a keyword list.
+  const NON_SUB_CATS = new Set(["Rent", "EMI", "Salary", "Freelance Income", "Groceries", "Fuel", "Transfers", "Investments", "Savings"]);
   const subByMerchant = {};
   const byMerchant = {};
   expenses.forEach(t => { (byMerchant[t.merchant] = byMerchant[t.merchant] || []).push(t); });
@@ -171,6 +172,7 @@ function computeAnalytics(transactions, options = {}) {
     const isTagged  = txns.some(t => t.category === "Subscriptions");
     let recurringAmount = null;
     for (const t of txns) {
+      if (NON_SUB_CATS.has(t.category)) continue; // rent/EMI/groceries recur but aren't subscriptions
       const tol = Math.max(t.amount * 0.05, 10); // near-fixed amount (within 5% or ₹10)
       const months = new Set(txns.filter(o => Math.abs(o.amount - t.amount) <= tol).map(o => o.date.slice(0, 7)));
       if (months.size >= 2) { recurringAmount = t.amount; break; }
