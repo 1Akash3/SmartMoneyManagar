@@ -26,12 +26,28 @@ export default function FloatingAssistant() {
     if (!text || loading) return;
     setQuestion(text);
     setLoading(true);
-    try {
-      const { data } = await api.askAssistant({ question: text });
-      setAnswer(data);
-    } catch (err) {
-      setAnswer({ answer: err.response?.data?.error || "Assistant unavailable right now. Please try again." });
-    } finally { setLoading(false); }
+    setAnswer(null);
+    const sleep = ms => new Promise(r => setTimeout(r, ms));
+    // Retry transient failures — the free-tier backend can be waking from sleep.
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        const { data } = await api.askAssistant({ question: text });
+        setAnswer(data);
+        setLoading(false);
+        return;
+      } catch (err) {
+        const s = err.response?.status;
+        const transient = !err.response || s === 502 || s === 503 || s === 504;
+        if (transient && attempt < 2) {
+          setAnswer({ answer: "Waking up the server (free hosting can sleep after a while) — one moment…" });
+          await sleep(7000);
+          continue;
+        }
+        setAnswer({ answer: err.response?.data?.error || "Couldn't reach the assistant — the server may still be waking up. Please try again in ~30 seconds." });
+        setLoading(false);
+        return;
+      }
+    }
   }
 
   return (
