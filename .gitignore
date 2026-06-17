@@ -20,3 +20,7 @@ backend/uploads/*
 *.log
 .DS_Store
 .vscode/
+
+# Capacitor native projects (regenerate locally with: npx cap add android / ios)
+frontend/android/
+frontend/ios/

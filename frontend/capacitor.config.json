@@ -1,0 +1,9 @@
+{
+  "appId": "com.spendsmart.app",
+  "appName": "SpendSmart",
+  "webDir": "dist",
+  "server": {
+    "url": "https://smart-money-managar-xdti-one.vercel.app",
+    "androidScheme": "https"
+  }
+}

@@ -6,6 +6,7 @@ import MainLayout from "./components/shared/MainLayout";
 import LegalPage from "./pages/LegalPage";
 import ContactPage from "./pages/ContactPage";
 import CookieConsent from "./components/shared/CookieConsent";
+import InstallPrompt from "./components/shared/InstallPrompt";
 import { initAnalytics } from "./utils/analytics";
 import { CoinLoader } from "./components/shared/UI";
 
@@ -64,6 +65,7 @@ export default function App() {
       />
       <Inner />
       <CookieConsent />
+      <InstallPrompt />
     </AppProvider>
   );
 }
