@@ -68,6 +68,7 @@ export const confirmExpected     = id       => api.post(`/transactions/${id}/con
 export const getRecommendations  = d        => api.post("/transactions/recommendations", d);
 export const getImports          = ()       => api.get("/transactions/imports");
 export const deleteImport        = id       => api.delete(`/transactions/imports/${id}`);
+export const loadSample          = ()       => api.post("/transactions/load-sample");
 
 // AI Assistant
 export const askAssistant = d => api.post("/ai/ask", d);

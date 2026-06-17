@@ -28,6 +28,7 @@ export default function DashboardPage({ onNavigate, params }) {
   const [previewData, setPreviewData] = useState(null);
   const [previewModal, setPreviewModal] = useState(false);
   const [uploadLoading, setUploadLoading] = useState(false);
+  const [sampleLoading, setSampleLoading] = useState(false);
   const [confirming, setConfirming] = useState(null);
   const [scoreModal, setScoreModal] = useState(false);
   const fileRef = useRef();
@@ -45,8 +46,7 @@ export default function DashboardPage({ onNavigate, params }) {
     api.getRecommendations({ priority, customGoal }).then(r => setRecs(r.data)).catch(() => {});
   }, [analytics, priority, customGoal]);
 
-  async function handleFileSelect(e) {
-    const file = e.target.files[0];
+  async function processFile(file) {
     if (!file) return;
     const ext = file.name.split(".").pop().toLowerCase();
     if (!["csv", "xlsx", "xls", "pdf"].includes(ext)) { toast.error("Only CSV, XLSX, or PDF files are supported."); return; }
@@ -63,7 +63,20 @@ export default function DashboardPage({ onNavigate, params }) {
       setPreviewModal(true);
     } catch (err) {
       toast.error(err.response?.data?.error || "Failed to read file.");
-    } finally { setUploadLoading(false); e.target.value = ""; }
+    } finally { setUploadLoading(false); }
+  }
+  function handleFileSelect(e) { processFile(e.target.files[0]); e.target.value = ""; }
+  function handleDrop(e) { e.preventDefault(); processFile(e.dataTransfer.files?.[0]); }
+
+  async function loadSampleData() {
+    setSampleLoading(true);
+    try {
+      const { data } = await api.loadSample();
+      applyAnalytics(data.analytics);
+      fetchTransactions();
+      toast.success("Sample data loaded — explore away!");
+    } catch { toast.error("Couldn't load sample data. Please try again."); }
+    finally { setSampleLoading(false); }
   }
 
   async function confirmImport() {
@@ -154,7 +167,7 @@ export default function DashboardPage({ onNavigate, params }) {
 
       {/* Toolbar: period + upload */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div className="flex items-center gap-1 bg-surface border border-stroke rounded-xl p-1">
+        <div className="flex items-center gap-1 bg-surface border border-stroke rounded-xl p-1" data-tour="period">
           {PERIODS.map(p => (
             <button key={p.key} onClick={() => setPeriod(p.key)}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors border-0 ${period === p.key ? "bg-primary text-white [.dark_&]:text-[#0b0d13]" : "bg-transparent text-muted hover:text-ink"}`}>
@@ -164,7 +177,7 @@ export default function DashboardPage({ onNavigate, params }) {
         </div>
         <div className="flex gap-2">
           <input ref={fileRef} type="file" accept=".csv,.xlsx,.xls,.pdf" className="hidden" onChange={handleFileSelect} />
-          <Btn onClick={() => fileRef.current.click()} disabled={uploadLoading} icon={uploadLoading ? undefined : "upload"}>
+          <Btn onClick={() => fileRef.current.click()} disabled={uploadLoading} icon={uploadLoading ? undefined : "upload"} data-tour="import">
             {uploadLoading ? "Parsing…" : "Import Statement"}
           </Btn>
           <Btn variant="secondary" icon="plus" onClick={() => onNavigate?.("transactions")}>Add Manually</Btn>
@@ -172,15 +185,39 @@ export default function DashboardPage({ onNavigate, params }) {
       </div>
 
       {!analytics ? (
-        <Card>
-          <EmptyState icon="upload" title="No data yet"
-            sub="Import a CSV, XLSX, or PDF bank statement — or add transactions manually to see your analytics."
-            action={<Btn icon="upload" onClick={() => fileRef.current.click()}>Import Statement</Btn>} />
+        <Card className="p-6">
+          <div className="text-center max-w-lg mx-auto py-4">
+            <div className="w-12 h-12 mx-auto mb-4 rounded-2xl flex items-center justify-center text-primary" style={{ background: "var(--primary-soft)" }}>
+              <Icon name="sparkles" size={22} />
+            </div>
+            <h2 className="text-lg font-bold text-ink tracking-tight mb-1">Welcome to SpendSmart</h2>
+            <p className="text-sm text-muted mb-6">Get started in seconds — pick how you'd like to begin.</p>
+
+            <div onDragOver={e => e.preventDefault()} onDrop={handleDrop} onClick={() => fileRef.current.click()}
+              className="border-2 border-dashed border-stroke rounded-2xl p-6 mb-4 cursor-pointer hover:border-primary transition-colors">
+              <span className="text-muted"><Icon name="upload" size={20} className="mx-auto mb-2" /></span>
+              <p className="text-sm font-medium text-ink2">Drop a statement here, or click to browse</p>
+              <p className="text-xs text-muted mt-1">CSV, Excel, or PDF bank / UPI statement</p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+              <Btn onClick={loadSampleData} disabled={sampleLoading} icon={sampleLoading ? undefined : "zap"}>
+                {sampleLoading ? "Loading…" : "Try sample data"}
+              </Btn>
+              <Btn variant="secondary" icon="upload" onClick={() => fileRef.current.click()}>Import statement</Btn>
+              <Btn variant="secondary" icon="plus" onClick={() => onNavigate?.("transactions")}>Add manually</Btn>
+            </div>
+
+            <p className="text-xs text-muted mt-5">
+              Not sure about the format?{" "}
+              <a href="/sample-statement.csv" download className="text-primary font-medium hover:underline">Download a sample CSV</a>
+            </p>
+          </div>
         </Card>
       ) : (
         <>
           {/* KPI row — every card leads somewhere */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3" data-tour="kpis">
             <KPICard label="Total Spent"  value={fmt(analytics.total)}       sub={`${analytics.totalTransactions} transactions`} color="var(--danger)" icon="creditCard"
               hint="See all expenses" onClick={() => onNavigate?.("transactions", { type: "expense" })} />
             <KPICard label="Total Income" value={fmt(analytics.totalIncome)} sub={analytics.expenseRatio !== null ? `${analytics.expenseRatio}% expense ratio` : "no income recorded"} color="var(--success)" icon="banknote"
@@ -302,7 +339,7 @@ export default function DashboardPage({ onNavigate, params }) {
           </div>
 
           {/* AI Assistant */}
-          <Card className="p-5">
+          <Card className="p-5" data-tour="ai">
             <SectionHeader title="AI Financial Assistant" sub="Ask questions about your spending — answered from your own data" />
             <div className="flex gap-2 mb-3">
               <input value={question} onChange={e => setQuestion(e.target.value)}

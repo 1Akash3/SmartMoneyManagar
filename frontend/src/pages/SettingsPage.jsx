@@ -223,6 +223,10 @@ export default function SettingsPage() {
                 </a>
               ))}
             </div>
+            <button onClick={() => { localStorage.removeItem("tourSeen"); window.dispatchEvent(new Event("start-tour")); toast("Starting the tour…"); }}
+              className="mt-2.5 w-full flex items-center justify-center gap-2 p-2.5 rounded-xl border border-stroke text-sm text-ink2 hover:border-strokeStrong bg-surface2 transition-colors">
+              <Icon name="play" size={14} /> Replay the quick tutorial
+            </button>
             <p className="text-[11px] text-faint mt-3">SpendSmart v5.0.0</p>
           </div>
         </Card>

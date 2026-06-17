@@ -4,7 +4,7 @@
  * relying on them legally.
  */
 const UPDATED = "June 17, 2026";
-const CONTACT_EMAIL = "akash.gaikwad1304@gmail.com";
+const CONTACT_EMAIL = "spendsmartfinance@gmail.com";
 
 function Shell({ title, children }) {
   return (

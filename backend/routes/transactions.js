@@ -223,4 +223,49 @@ router.post("/recommendations", auth, async (req, res) => {
   } catch (err) { res.status(500).json({ error: "Failed to generate recommendations." }); }
 });
 
+// ── Sample/demo data — lets new users explore instantly ───────
+function buildSampleTransactions(userId) {
+  const today = new Date();
+  const dateOf = n => { const x = new Date(today); x.setDate(x.getDate() - n); return x.toISOString().slice(0, 10); };
+  const rows = [];
+  const add = (n, merchant, amount, category, type = "expense", paymentMethod = "UPI") =>
+    rows.push({
+      userId, date: dateOf(n), merchant, amount, category, type, paymentMethod,
+      source: "upload", importId: "sample", importFile: "Sample data",
+      dayOfWeek: new Date(dateOf(n)).getDay(), isOutlier: false,
+    });
+
+  // Income
+  [82, 52, 22].forEach(n => add(n, "Acme Corp Payroll", 78000, "Salary", "income", "Bank Transfer"));
+  add(40, "Freelance Project", 12000, "Freelance Income", "income", "Bank Transfer");
+  // Recurring
+  [80, 50, 20].forEach(n => add(n, "Sunrise Apartments", 15000, "Rent", "expense", "Bank Transfer"));
+  [78, 48, 18].forEach(n => add(n, "Netflix", 199, "Subscriptions"));
+  [77, 47, 17].forEach(n => add(n, "Spotify", 119, "Subscriptions"));
+  [75, 45, 15].forEach(n => add(n, "Airtel", 799, "Utilities"));
+  // Everyday spend
+  [
+    [3, "Zomato", 420, "Food"], [5, "Swiggy", 360, "Food"], [9, "Starbucks", 280, "Food"],
+    [19, "Cafe Coffee Day", 220, "Food"], [2, "Amazon", 1899, "Shopping"], [12, "Flipkart", 2499, "Shopping"],
+    [25, "Myntra", 1299, "Shopping"], [28, "Croma", 3499, "Shopping"], [4, "Uber", 240, "Travel"],
+    [8, "Ola", 180, "Travel"], [30, "IRCTC", 1450, "Travel"], [31, "Rapido", 90, "Travel"],
+    [6, "BigBasket", 2100, "Groceries"], [16, "DMart", 1750, "Groceries"], [27, "Blinkit", 540, "Groceries"],
+    [7, "BookMyShow", 700, "Entertainment"], [21, "Hotstar", 299, "Entertainment"],
+    [10, "Apollo Pharmacy", 640, "Healthcare"], [14, "Indian Oil", 1500, "Fuel"], [35, "HP Petrol", 1200, "Fuel"],
+    [13, "Udemy", 499, "Education"], [23, "Decathlon", 1899, "Shopping"],
+  ].forEach(([n, m, a, c]) => add(n, m, a, c));
+  [11, 38].forEach((n, i) => add(n, i ? "Groww" : "Zerodha", i ? 3000 : 5000, "Investments", "investment", "Bank Transfer"));
+
+  return rows;
+}
+
+router.post("/load-sample", auth, async (req, res) => {
+  try {
+    await dal.deleteTransactionsByImport(req.user.id, "sample"); // idempotent
+    const rows = buildSampleTransactions(req.user.id);
+    await dal.createManyTransactions(rows);
+    res.json({ success: true, imported: rows.length, analytics: await analyticsFor(req.user.id) });
+  } catch (err) { res.status(500).json({ error: "Failed to load sample data." }); }
+});
+
 module.exports = router;

@@ -84,9 +84,9 @@ export const GOAL_ICONS = ["target", "laptop", "plane", "home", "car", "gem", "b
 
 /* ── Layout primitives ─────────────────────────────────────── */
 
-export function Card({ children, className = "", hover = false }) {
+export function Card({ children, className = "", hover = false, ...rest }) {
   return (
-    <div className={`bg-surface border border-stroke rounded-2xl shadow-card ${hover ? "transition-all hover:border-strokeStrong" : ""} ${className}`}>
+    <div className={`bg-surface border border-stroke rounded-2xl shadow-card ${hover ? "transition-all hover:border-strokeStrong" : ""} ${className}`} {...rest}>
       {children}
     </div>
   );
@@ -177,7 +177,7 @@ export function SectionHeader({ title, sub, action }) {
   );
 }
 
-export function Btn({ children, onClick, variant = "primary", size = "md", disabled, className = "", type = "button", icon }) {
+export function Btn({ children, onClick, variant = "primary", size = "md", disabled, className = "", type = "button", icon, ...rest }) {
   const sizes = { xs: "px-2.5 py-1.5 text-xs", sm: "px-3 py-1.5 text-xs", md: "px-4 py-2 text-sm", lg: "px-5 py-2.5 text-sm" };
   const variants = {
     primary:   "bg-primary text-white hover:opacity-90 [.dark_&]:text-[#0b0d13] font-semibold",
@@ -187,7 +187,7 @@ export function Btn({ children, onClick, variant = "primary", size = "md", disab
     success:   "text-success border border-stroke hover:border-success/40 bg-surface",
   };
   return (
-    <button type={type} onClick={onClick} disabled={disabled}
+    <button type={type} onClick={onClick} disabled={disabled} {...rest}
       className={`inline-flex items-center justify-center gap-1.5 rounded-xl font-medium transition-all leading-none ${sizes[size]} ${variants[variant]} ${disabled ? "opacity-40 cursor-not-allowed" : ""} ${className}`}>
       {icon && <Icon name={icon} size={size === "xs" || size === "sm" ? 13 : 15} />}
       {children}

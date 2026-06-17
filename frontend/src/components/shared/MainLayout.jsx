@@ -9,6 +9,7 @@ import ReportsPage      from "../../pages/ReportsPage";
 import SettingsPage     from "../../pages/SettingsPage";
 import NotificationBell from "./NotificationBell";
 import MarketWidget from "./MarketWidget";
+import OnboardingTour from "./OnboardingTour";
 import { Icon } from "./UI";
 import toast from "react-hot-toast";
 
@@ -41,6 +42,21 @@ export default function MainLayout() {
 
   useEffect(() => { trackPage("/" + page); }, [page]); // analytics page view per in-app view
 
+  // Guided tour: auto-run once for a new user on a populated dashboard (desktop).
+  const [tour, setTour] = useState(false);
+  useEffect(() => {
+    if (analytics && page === "dashboard" && window.innerWidth >= 768 && !localStorage.getItem("tourSeen")) {
+      const t = setTimeout(() => setTour(true), 600);
+      return () => clearTimeout(t);
+    }
+  }, [analytics, page]);
+  useEffect(() => {
+    const onReplay = () => { setPage("dashboard"); setTimeout(() => setTour(true), 400); };
+    window.addEventListener("start-tour", onReplay);
+    return () => window.removeEventListener("start-tour", onReplay);
+  }, []);
+  const closeTour = () => { localStorage.setItem("tourSeen", "1"); setTour(false); };
+
   function navigate(id, params = null) { setPage(id); setPageParams(params); setSideOpen(false); }
   function handleLogout() { logout(); toast.success("Signed out."); }
 
@@ -59,7 +75,7 @@ export default function MainLayout() {
       <nav className="flex-1 px-3 py-4 space-y-0.5">
         <p className="text-[10px] font-semibold text-faint uppercase tracking-widest px-3 mb-2">Menu</p>
         {NAV.map(n => (
-          <button key={n.id} onClick={() => navigate(n.id)}
+          <button key={n.id} onClick={() => navigate(n.id)} data-tour={"nav-" + n.id}
             className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-colors text-left border-0 bg-transparent ${page === n.id ? "nav-active" : "nav-inactive"}`}>
             <Icon name={n.icon} size={17} />
             {n.label}
@@ -161,6 +177,8 @@ export default function MainLayout() {
           </AnimatePresence>
         </main>
       </div>
+
+      {tour && <OnboardingTour onClose={closeTour} />}
     </div>
   );
 }
