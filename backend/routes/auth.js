@@ -68,7 +68,7 @@ router.post("/signup", verifyTurnstile, async (req, res) => {
 router.post("/verify-email", async (req, res) => {
   try {
     const { email, otp } = req.body;
-    if (!email || !otp) return res.status(400).json({ error: "Email and code are required." });
+    if (typeof email !== "string" || typeof otp !== "string") return res.status(400).json({ error: "Email and code are required." });
 
     const { isUsingMongo, getStore } = require("../config/db");
     let user;
@@ -130,7 +130,7 @@ router.post("/resend-otp", async (req, res) => {
 router.post("/login", verifyTurnstile, async (req, res) => {
   try {
     const { email, password, rememberMe } = req.body;
-    if (!email || !password) return res.status(400).json({ error: "Email and password are required." });
+    if (typeof email !== "string" || typeof password !== "string") return res.status(400).json({ error: "Email and password are required." });
 
     // Guest login
     if (email === GUEST_EMAIL && password === "guest123") {
@@ -203,7 +203,7 @@ router.post("/forgot-password", async (req, res) => {
 router.post("/reset-password", async (req, res) => {
   try {
     const { token, newPassword } = req.body;
-    if (!token || !newPassword)  return res.status(400).json({ error: "Token and new password are required." });
+    if (typeof token !== "string" || typeof newPassword !== "string") return res.status(400).json({ error: "Token and new password are required." });
     if (newPassword.length < 6)  return res.status(400).json({ error: "Password must be at least 6 characters." });
 
     const { isUsingMongo, getStore } = require("../config/db");
