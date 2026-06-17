@@ -159,22 +159,30 @@ function computeAnalytics(transactions, options = {}) {
   // Anomaly detection — multi-signal, user-confirmable
   const outliers = detectAnomalies(expenses);
 
-  // Subscription detection: keyword match OR same merchant + similar amount across 2+ months
-  const subKeywordTxns = expenses.filter(t => SUB_KEYWORDS.some(s => t.merchant.toLowerCase().includes(s)));
-  const merchantMonths = {};
-  expenses.forEach(t => {
-    const k = t.merchant;
-    (merchantMonths[k] = merchantMonths[k] || new Set()).add(t.date.slice(0, 7));
-  });
-  const recurringSubs = expenses.filter(t =>
-    t.category === "Subscriptions" ||
-    (merchantMonths[t.merchant].size >= 2 && SUB_KEYWORDS.some(s => t.merchant.toLowerCase().includes(s)))
-  );
-  const subTxns = _.uniqBy([...subKeywordTxns, ...recurringSubs], t => `${t.merchant}-${t.date}-${t.amount}`);
+  // Subscription detection: a known service (keyword or "Subscriptions" category),
+  // OR ANY merchant charging a near-fixed amount across 2+ different months — so
+  // real recurring bills (gym, SaaS, local OTT, etc.) are caught, not just a keyword list.
   const subByMerchant = {};
-  subTxns.forEach(t => {
-    if (!subByMerchant[t.merchant] || t.date > subByMerchant[t.merchant].date) {
-      subByMerchant[t.merchant] = { merchant: t.merchant, amount: Math.round(t.amount), date: t.date, months: merchantMonths[t.merchant].size };
+  const byMerchant = {};
+  expenses.forEach(t => { (byMerchant[t.merchant] = byMerchant[t.merchant] || []).push(t); });
+  Object.entries(byMerchant).forEach(([merchant, txns]) => {
+    const lower = merchant.toLowerCase();
+    const isKeyword = SUB_KEYWORDS.some(s => lower.includes(s));
+    const isTagged  = txns.some(t => t.category === "Subscriptions");
+    let recurringAmount = null;
+    for (const t of txns) {
+      const tol = Math.max(t.amount * 0.05, 10); // near-fixed amount (within 5% or ₹10)
+      const months = new Set(txns.filter(o => Math.abs(o.amount - t.amount) <= tol).map(o => o.date.slice(0, 7)));
+      if (months.size >= 2) { recurringAmount = t.amount; break; }
+    }
+    if (isKeyword || isTagged || recurringAmount != null) {
+      const latest = txns.reduce((a, b) => (b.date > a.date ? b : a));
+      subByMerchant[merchant] = {
+        merchant,
+        amount: Math.round(recurringAmount != null ? recurringAmount : latest.amount),
+        date: latest.date,
+        months: new Set(txns.map(t => t.date.slice(0, 7))).size,
+      };
     }
   });
   const subscriptions = Object.values(subByMerchant).sort((a, b) => b.amount - a.amount);
