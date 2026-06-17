@@ -3,10 +3,13 @@ const router  = express.Router();
 const auth    = require("../middleware/auth");
 const dal     = require("../utils/dal");
 const { computeAnalytics, answerQuestion } = require("../utils/analytics");
+const { askLLM, isLLMEnabled } = require("../utils/aiAssistant");
 
-// AI Financial Assistant — answers natural-language questions about the
-// user's finances from their own analytics. Rule-based engine; degrades
-// to a summary answer when the question isn't recognised.
+// AI Financial Assistant. The rule-based engine (answerQuestion) computes exact
+// figures and the fact chips instantly and always works offline. When an LLM is
+// configured (ANTHROPIC_API_KEY set), Claude produces a smarter, free-form
+// answer grounded in the same data — and we keep the rule-based facts as chips.
+// Any LLM failure/timeout/refusal silently falls back to the rule-based answer.
 router.post("/ask", auth, async (req, res) => {
   try {
     const { question } = req.body;
@@ -19,7 +22,18 @@ router.post("/ask", auth, async (req, res) => {
     const analytics = txns.length
       ? computeAnalytics(txns, { monthlyBudget: parseFloat(user?.monthlyBudget) || 0 })
       : null;
-    res.json(answerQuestion(question, analytics, goals, txns));
+
+    const base = answerQuestion(question, analytics, goals, txns);
+
+    if (isLLMEnabled() && analytics) {
+      try {
+        const smart = await askLLM(question, {
+          analytics, transactions: txns, goals, currency: user?.currency || "INR",
+        });
+        if (smart) return res.json({ answer: smart, facts: base.facts });
+      } catch (_) { /* fall through to the instant rule-based answer */ }
+    }
+    res.json(base);
   } catch (err) {
     res.status(500).json({ error: "Assistant is unavailable right now. Please try again." });
   }
