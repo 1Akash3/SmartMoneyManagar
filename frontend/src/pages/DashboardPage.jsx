@@ -325,7 +325,7 @@ export default function DashboardPage({ onNavigate, params }) {
           )}
 
           {/* Charts */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4" data-tour="charts">
             <Card className="p-5">
               <SectionHeader title="Category Breakdown" sub="Where your money goes" />
               <CategoryPie catTotals={analytics.catTotals} total={analytics.total} />
@@ -360,49 +360,6 @@ export default function DashboardPage({ onNavigate, params }) {
               hint={analytics.outliers?.length ? "Review them" : undefined}
               onClick={analytics.outliers?.length ? () => scrollTo(anomaliesRef) : undefined} />
           </div>
-
-          {/* AI Assistant */}
-          <Card className="p-5" data-tour="ai">
-            <SectionHeader title="AI Financial Assistant" sub="Ask questions about your spending — answered from your own data" />
-            <div className="flex gap-2 mb-3">
-              <input value={question} onChange={e => setQuestion(e.target.value)}
-                onKeyDown={e => e.key === "Enter" && ask()}
-                placeholder="e.g. Where am I overspending?"
-                className="flex-1 bg-surface2 border border-stroke rounded-xl px-3.5 py-2.5 text-sm text-ink placeholder-faint"
-                style={{ outline: "none" }} />
-              <Btn onClick={() => ask()} disabled={aiLoading} icon={aiLoading ? undefined : "sparkles"}>
-                {aiLoading ? "Thinking…" : "Ask"}
-              </Btn>
-            </div>
-            <div className="flex flex-wrap gap-1.5 mb-3">
-              {ASSISTANT_SUGGESTIONS.map(s => (
-                <button key={s} onClick={() => ask(s)}
-                  className="text-xs px-2.5 py-1.5 rounded-lg bg-surface2 border border-stroke text-muted hover:text-ink hover:border-strokeStrong transition-colors">
-                  {s}
-                </button>
-              ))}
-            </div>
-            {aiAnswer && (
-              <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
-                className="rounded-xl p-4 border border-stroke" style={{ background: "var(--primary-soft)" }}>
-                <div className="flex items-start gap-2.5">
-                  <span className="text-primary mt-0.5"><Icon name="sparkles" size={15} /></span>
-                  <div className="flex-1">
-                    <p className="text-sm text-ink leading-relaxed">{aiAnswer.answer}</p>
-                    {aiAnswer.facts?.length > 0 && (
-                      <div className="flex flex-wrap gap-2 mt-3">
-                        {aiAnswer.facts.map((f, i) => (
-                          <span key={i} className="text-xs bg-surface border border-stroke rounded-lg px-2.5 py-1.5">
-                            <span className="text-muted">{f.label}</span> <strong className="text-ink tnum">{f.value}</strong>
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </motion.div>
-            )}
-          </Card>
 
           {/* Top merchants — click one to see its transactions */}
           <Card className="p-5">
@@ -481,7 +438,7 @@ export default function DashboardPage({ onNavigate, params }) {
           )}
 
           {/* Recommendations */}
-          <Card className="p-5">
+          <Card className="p-5" data-tour="insights">
             <SectionHeader title="Personalised Recommendations" sub="Adapts to your financial priority" />
             <div className="flex flex-wrap gap-1.5 mb-4">
               {PRIORITIES.map(p => (

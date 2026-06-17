@@ -10,7 +10,9 @@ import SettingsPage     from "../../pages/SettingsPage";
 import NotificationBell from "./NotificationBell";
 import MarketWidget from "./MarketWidget";
 import OnboardingTour from "./OnboardingTour";
-import { Icon } from "./UI";
+import FloatingAssistant from "./FloatingAssistant";
+import { Icon, Modal, Btn } from "./UI";
+import * as api from "../../services/api";
 import toast from "react-hot-toast";
 
 const NAV = [
@@ -34,7 +36,7 @@ function Logo() {
 }
 
 export default function MainLayout() {
-  const { user, logout, analytics, theme, toggleTheme } = useApp();
+  const { user, logout, analytics, theme, toggleTheme, transactions, refreshAll } = useApp();
   const [page, setPage] = useState("dashboard");
   const [pageParams, setPageParams] = useState(null);
   const [sideOpen, setSideOpen] = useState(false);
@@ -44,6 +46,8 @@ export default function MainLayout() {
 
   // Guided tour: auto-run once for a new user on a populated dashboard (desktop).
   const [tour, setTour] = useState(false);
+  const [sampleModal, setSampleModal] = useState(false);
+  const [clearingSample, setClearingSample] = useState(false);
   useEffect(() => {
     if (analytics && page === "dashboard" && window.innerWidth >= 768 && !localStorage.getItem("tourSeen")) {
       const t = setTimeout(() => setTour(true), 600);
@@ -55,7 +59,17 @@ export default function MainLayout() {
     window.addEventListener("start-tour", onReplay);
     return () => window.removeEventListener("start-tour", onReplay);
   }, []);
-  const closeTour = () => { localStorage.setItem("tourSeen", "1"); setTour(false); };
+  const closeTour = () => {
+    localStorage.setItem("tourSeen", "1");
+    setTour(false);
+    if (transactions.some(t => t.importId === "sample")) setSampleModal(true); // offer to clear demo data
+  };
+  async function deleteSample() {
+    setClearingSample(true);
+    try { await api.clearSample(); await refreshAll(); toast.success("Sample data cleared."); }
+    catch { toast.error("Couldn't clear sample data. Please try again."); }
+    finally { setClearingSample(false); setSampleModal(false); }
+  }
 
   function navigate(id, params = null) { setPage(id); setPageParams(params); setSideOpen(false); }
   function handleLogout() { logout(); toast.success("Signed out."); }
@@ -179,6 +193,19 @@ export default function MainLayout() {
       </div>
 
       {tour && <OnboardingTour onClose={closeTour} />}
+      <FloatingAssistant />
+
+      <Modal open={sampleModal} onClose={() => setSampleModal(false)} title="Delete the sample data?" subtitle="You explored with demo transactions">
+        <p className="text-sm text-muted mb-4 leading-relaxed">
+          Delete the sample data now to start with a clean slate — or keep exploring. Either way, it clears automatically the moment you add your first real transaction, goal, or reminder.
+        </p>
+        <div className="flex gap-3">
+          <Btn variant="danger" onClick={deleteSample} disabled={clearingSample} className="flex-1">
+            {clearingSample ? "Deleting…" : "Delete sample data"}
+          </Btn>
+          <Btn variant="secondary" onClick={() => setSampleModal(false)}>Keep exploring</Btn>
+        </div>
+      </Modal>
     </div>
   );
 }

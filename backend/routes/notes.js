@@ -24,6 +24,7 @@ router.post("/", auth, async (req, res) => {
   try {
     const { title, description, amount, dueDate, priority } = req.body;
     if (!title) return res.status(400).json({ error: "Title is required." });
+    await dal.deleteTransactionsByImport(req.user.id, "sample"); // real activity replaces demo sample data
     const note = await dal.createNote({
       userId: req.user.id, title: title.trim(),
       description: description || "", amount: parseFloat(amount) || 0,

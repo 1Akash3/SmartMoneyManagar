@@ -18,6 +18,7 @@ router.post("/", auth, async (req, res) => {
     if (parseFloat(targetAmount) <= 0) return res.status(400).json({ error: "Target amount must be positive." });
     if (parseFloat(targetAmount) > 10000000) return res.status(400).json({ error: "Target amount seems unrealistic. Please enter a realistic goal." });
 
+    await dal.deleteTransactionsByImport(req.user.id, "sample"); // real activity replaces demo sample data
     const goal = await dal.createGoal({
       userId: req.user.id, title: title.trim(), type: type || "savings",
       targetAmount: parseFloat(targetAmount), savedAmount: 0,

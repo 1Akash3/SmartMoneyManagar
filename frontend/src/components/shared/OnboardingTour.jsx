@@ -6,12 +6,12 @@ import { useState, useLayoutEffect } from "react";
  * a populated dashboard (see MainLayout) and is replayable from Settings.
  */
 const STEPS = [
-  { sel: '[data-tour="import"]',      title: "Bring in your transactions", body: "Import a CSV, Excel, or PDF bank/UPI statement anytime — your insights update instantly." },
-  { sel: '[data-tour="kpis"]',        title: "Your money at a glance",     body: "Spending, income, savings, and a health score that grades your financial habits." },
-  { sel: '[data-tour="period"]',      title: "Switch the time period",     body: "View today, the last 7 or 30 days, a few months, or your entire history." },
-  { sel: '[data-tour="nav-goals"]',   title: "Set goals & reminders",      body: "Create savings goals and bill reminders so nothing slips through the cracks." },
-  { sel: '[data-tour="nav-reports"]', title: "Reports & export",           body: "Email yourself or download a full financial report whenever you need one." },
-  { sel: '[data-tour="ai"]',          title: "Ask the AI assistant",       body: "Ask about your spending in plain English. That's it — you're all set!" },
+  { sel: '[data-tour="import"]',   title: "Bring in your money",       body: "Import a CSV, Excel, or PDF bank/UPI statement here — categories are auto-detected. No statement handy? Load sample data and explore first." },
+  { sel: '[data-tour="kpis"]',     title: "Your money, graded",        body: "Spending, income, and net savings at a glance — plus a 0–100 health score that grades your habits. Tap any card to drill into the detail." },
+  { sel: '[data-tour="charts"]',   title: "See exactly where it goes", body: "A category breakdown and income-vs-expense cash flow, so overspending and unusual months jump out instantly." },
+  { sel: '[data-tour="period"]',   title: "Zoom to any timeframe",     body: "Switch between today, the last 7 or 30 days, a few months, or your whole history — every number and chart updates live." },
+  { sel: '[data-tour="insights"]', title: "Smart, personalised tips",  body: "SpendSmart studies your spending and suggests concrete ways to save — and it re-tunes to whatever financial priority you pick." },
+  { sel: '[data-tour="ai"]',       title: "Ask the AI anything",       body: "Tap this bubble on any page and ask in plain English — like 'Where am I overspending?' It answers from your own data. You're all set!" },
 ];
 
 export default function OnboardingTour({ onClose }) {
