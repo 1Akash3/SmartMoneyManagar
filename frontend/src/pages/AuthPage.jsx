@@ -103,7 +103,7 @@ const FEATURES = [
 
 export default function AuthPage({ onAuth }) {
   const [mode, setMode] = useState("login"); // login | signup | forgot | verify
-  const [form, setForm] = useState({ name: "", email: "", password: "", confirmPassword: "", rememberMe: false });
+  const [form, setForm] = useState({ name: "", email: "", password: "", confirmPassword: "", rememberMe: true });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [forgotSent, setForgotSent] = useState(false);

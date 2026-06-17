@@ -1,7 +1,7 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { useApp } from "../context/AppContext";
-import { Card, SectionHeader, Btn, Input, Select, Alert, Icon, fmt } from "../components/shared/UI";
+import { Card, SectionHeader, Btn, Input, Select, Alert, Icon, Modal, fmt } from "../components/shared/UI";
 import * as api from "../services/api";
 
 export default function SettingsPage() {
@@ -14,6 +14,7 @@ export default function SettingsPage() {
   const [savingProfile, setSavingProfile] = useState(false);
   const [savingPass, setSavingPass] = useState(false);
   const [activeTab, setActiveTab] = useState("profile");
+  const [signoutModal, setSignoutModal] = useState(false);
 
   const TABS = [
     { id: "profile",    label: "Profile" },
@@ -150,7 +151,7 @@ export default function SettingsPage() {
 
           <div className="mt-6 pt-5 border-t border-stroke">
             <SectionHeader title="Session" sub="Manage your current session" />
-            <Btn variant="danger" icon="logout" onClick={() => { logout(); toast.success("Signed out."); }}>
+            <Btn variant="danger" icon="logout" onClick={() => setSignoutModal(true)}>
               Sign Out of SpendSmart
             </Btn>
           </div>
@@ -203,6 +204,14 @@ export default function SettingsPage() {
           </div>
         </Card>
       )}
+
+      <Modal open={signoutModal} onClose={() => setSignoutModal(false)} title="Sign out?" subtitle="You&#39;ll need to log in again next time">
+        <p className="text-sm text-muted mb-4">Are you sure you want to sign out of SpendSmart?</p>
+        <div className="flex gap-3">
+          <Btn variant="danger" onClick={() => { setSignoutModal(false); logout(); toast.success("Signed out."); }} className="flex-1">Sign out</Btn>
+          <Btn variant="secondary" onClick={() => setSignoutModal(false)}>Cancel</Btn>
+        </div>
+      </Modal>
     </div>
   );
 }

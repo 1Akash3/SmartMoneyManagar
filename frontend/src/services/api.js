@@ -28,9 +28,14 @@ api.interceptors.response.use(
         localStorage.setItem("accessToken", data.accessToken);
         original.headers.Authorization = `Bearer ${data.accessToken}`;
         return api(original);
-      } catch {
-        forceRelogin();
-        return new Promise(() => {}); // halt while the page redirects
+      } catch (refreshErr) {
+        // Only sign out if the refresh token itself was rejected (401). A network
+        // blip or a cold-starting server must NOT destroy the session.
+        if (refreshErr.response?.status === 401) {
+          forceRelogin();
+          return new Promise(() => {}); // halt while the page redirects
+        }
+        return Promise.reject(refreshErr); // transient — keep the user logged in
       }
     }
     // Token rejected outright (no token, or invalid signature after a JWT secret

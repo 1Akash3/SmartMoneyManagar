@@ -47,6 +47,7 @@ export default function MainLayout() {
   const [tour, setTour] = useState(false);
   const [sampleModal, setSampleModal] = useState(false);
   const [clearingSample, setClearingSample] = useState(false);
+  const [signoutModal, setSignoutModal] = useState(false);
   useEffect(() => {
     if (analytics && page === "dashboard" && window.innerWidth >= 768 && !localStorage.getItem("tourSeen")) {
       const t = setTimeout(() => setTour(true), 600);
@@ -118,7 +119,7 @@ export default function MainLayout() {
             <p className="text-[10px] text-muted truncate">{user?.email}</p>
           </div>
         </div>
-        <button onClick={handleLogout}
+        <button onClick={() => setSignoutModal(true)}
           className="w-full text-left px-3 py-2 rounded-xl text-xs text-muted hover:text-danger hover:bg-surface2 transition-colors flex items-center gap-2 border-0 bg-transparent">
           <Icon name="logout" size={13} />
           Sign Out
@@ -201,6 +202,14 @@ export default function MainLayout() {
             {clearingSample ? "Deleting…" : "Delete sample data"}
           </Btn>
           <Btn variant="secondary" onClick={() => setSampleModal(false)}>Keep exploring</Btn>
+        </div>
+      </Modal>
+
+      <Modal open={signoutModal} onClose={() => setSignoutModal(false)} title="Sign out?" subtitle="You&#39;ll need to log in again next time">
+        <p className="text-sm text-muted mb-4">Are you sure you want to sign out of SpendSmart?</p>
+        <div className="flex gap-3">
+          <Btn variant="danger" onClick={() => { setSignoutModal(false); handleLogout(); }} className="flex-1">Sign out</Btn>
+          <Btn variant="secondary" onClick={() => setSignoutModal(false)}>Cancel</Btn>
         </div>
       </Modal>
     </div>

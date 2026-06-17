@@ -7,8 +7,8 @@ const dal      = require("../utils/dal");
 const auth     = require("../middleware/auth");
 const verifyTurnstile = require("../middleware/turnstile");
 
-const signAccess  = p => jwt.sign(p, process.env.JWT_SECRET,         { expiresIn: process.env.JWT_ACCESS_EXPIRY         || "15m" });
-const signRefresh = p => jwt.sign(p, process.env.JWT_REFRESH_SECRET,  { expiresIn: process.env.JWT_REFRESH_EXPIRY || "7d"  });
+const signAccess  = p => jwt.sign(p, process.env.JWT_SECRET,         { expiresIn: process.env.JWT_ACCESS_EXPIRY         || "1h" });
+const signRefresh = p => jwt.sign(p, process.env.JWT_REFRESH_SECRET,  { expiresIn: process.env.JWT_REFRESH_EXPIRY || "30d"  });
 const userPayload = u => ({ id: u._id || u.id, name: u.name, email: u.email });
 
 // Guest demo account. Uses a fixed, valid ObjectId so that data queries
@@ -145,7 +145,7 @@ router.post("/login", verifyTurnstile, async (req, res) => {
     if (user.isVerified === false)          return res.status(403).json({ error: "Email not verified. Please check your inbox for the verification code.", code: "EMAIL_NOT_VERIFIED", email: user.email });
 
     const payload      = userPayload(user);
-    const accessToken  = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: rememberMe ? "30d" : process.env.JWT_ACCESS_EXPIRY || "15m" });
+    const accessToken  = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: rememberMe ? "30d" : process.env.JWT_ACCESS_EXPIRY || "1h" });
     const refreshToken = signRefresh(payload);
     await dal.updateUser(user._id || user.id, { refreshToken });
     res.json({ accessToken, refreshToken, user: { ...payload, currency: user.currency, monthlyBudget: user.monthlyBudget } });
