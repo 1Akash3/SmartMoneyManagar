@@ -4,18 +4,10 @@ import toast from "react-hot-toast";
 import { useApp, PERIODS } from "../context/AppContext";
 import { Card, KPICard, SectionHeader, Btn, Modal, Input, Select, Textarea, EmptyState, PageSpinner, Alert, ProgressBar, Icon, MerchantAvatar, fmt } from "../components/shared/UI";
 import { CategoryPie, WeeklyBar, DailyLine, CashFlow } from "../components/shared/Charts";
+import MarketWidget from "../components/shared/MarketWidget";
 import * as api from "../services/api";
 
 const PRIORITIES = ["Savings", "Food", "Health", "Travel", "Shopping", "Education", "Family", "Entertainment", "Others"];
-
-const ASSISTANT_SUGGESTIONS = [
-  "Where am I overspending?",
-  "How much did I pay by cash?",
-  "What was my biggest payment?",
-  "Did I spend more this month than last?",
-  "How much did I receive?",
-  "Why is my health score low?",
-];
 
 export default function DashboardPage({ onNavigate, params }) {
   const { analytics, notes, fetchNotes, fetchTransactions, refreshAll, applyAnalytics, confirmExpected, transactions, goals, loading, period, setPeriod } = useApp();
@@ -36,11 +28,6 @@ export default function DashboardPage({ onNavigate, params }) {
   const anomaliesRef = useRef(null);
   const subsRef = useRef(null);
   const scrollTo = ref => ref.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-
-  // AI assistant
-  const [question, setQuestion] = useState("");
-  const [aiAnswer, setAiAnswer] = useState(null);
-  const [aiLoading, setAiLoading] = useState(false);
 
   useEffect(() => {
     if (!analytics) { setRecs(null); return; }
@@ -134,19 +121,6 @@ export default function DashboardPage({ onNavigate, params }) {
     finally { setConfirming(null); }
   }
 
-  async function ask(q) {
-    const text = (q || question).trim();
-    if (!text) return;
-    setAiLoading(true);
-    setQuestion(text);
-    try {
-      const { data } = await api.askAssistant({ question: text });
-      setAiAnswer(data);
-    } catch (err) {
-      toast.error(err.response?.data?.error || "Assistant unavailable.");
-    } finally { setAiLoading(false); }
-  }
-
   const simSave = Math.round(
     (analytics?.catTotals?.Food || 0) * sliders.food / 100 +
     (analytics?.catTotals?.Travel || 0) * sliders.travel / 100 +
@@ -175,6 +149,8 @@ export default function DashboardPage({ onNavigate, params }) {
 
   return (
     <div className="space-y-4">
+
+      <MarketWidget />
 
       {transactions.some(t => t.importId === "sample") && (
         <div className="flex items-center gap-3 rounded-xl px-4 py-3 bg-surface border border-stroke">

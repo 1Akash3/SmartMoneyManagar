@@ -5,7 +5,7 @@ import { Card, SectionHeader, Btn, Input, Select, Alert, Icon, fmt } from "../co
 import * as api from "../services/api";
 
 export default function SettingsPage() {
-  const { user, setUser, logout, analytics, transactions, goals, theme, setTheme } = useApp();
+  const { user, setUser, logout, analytics, transactions, goals } = useApp();
   const isGuest = user?.email === "guest@spendsmart.com";
 
   const [profile, setProfile] = useState({ name: user?.name || "", monthlyBudget: user?.monthlyBudget || "", currency: user?.currency || "INR" });
@@ -17,7 +17,6 @@ export default function SettingsPage() {
 
   const TABS = [
     { id: "profile",    label: "Profile" },
-    { id: "appearance", label: "Appearance" },
     { id: "security",   label: "Security" },
     { id: "data",       label: "Data" },
   ];
@@ -125,33 +124,6 @@ export default function SettingsPage() {
         </Card>
       )}
 
-      {/* Appearance */}
-      {activeTab === "appearance" && (
-        <Card className="p-6">
-          <SectionHeader title="Theme" sub="Choose how SpendSmart looks" />
-          <div className="grid grid-cols-2 gap-3">
-            {[
-              { id: "light", label: "Light", icon: "sun",  desc: "Bright, high-contrast" },
-              { id: "dark",  label: "Dark",  icon: "moon", desc: "Easy on the eyes" },
-            ].map(t => (
-              <button key={t.id} onClick={() => setTheme(t.id)}
-                className={`p-4 rounded-2xl border text-left transition-colors ${theme === t.id ? "border-primary" : "border-stroke hover:border-strokeStrong"}`}
-                style={{ background: theme === t.id ? "var(--primary-soft)" : "var(--surface-2)" }}>
-                <span className={theme === t.id ? "text-primary" : "text-muted"}>
-                  <Icon name={t.icon} size={18} />
-                </span>
-                <p className="text-sm font-semibold text-ink mt-2">{t.label}</p>
-                <p className="text-xs text-muted mt-0.5">{t.desc}</p>
-                {theme === t.id && (
-                  <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-primary mt-2">
-                    <Icon name="check" size={11} /> Active
-                  </span>
-                )}
-              </button>
-            ))}
-          </div>
-        </Card>
-      )}
 
       {/* Security */}
       {activeTab === "security" && (

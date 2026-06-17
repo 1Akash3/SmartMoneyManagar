@@ -8,7 +8,6 @@ import GoalsPage        from "../../pages/GoalsPage";
 import ReportsPage      from "../../pages/ReportsPage";
 import SettingsPage     from "../../pages/SettingsPage";
 import NotificationBell from "./NotificationBell";
-import MarketWidget from "./MarketWidget";
 import OnboardingTour from "./OnboardingTour";
 import FloatingAssistant from "./FloatingAssistant";
 import { Icon, Modal, Btn } from "./UI";
@@ -108,8 +107,6 @@ export default function MainLayout() {
           </div>
         </div>
       )}
-
-      <MarketWidget />
 
       <div className="px-3 pb-4 border-t border-stroke pt-3">
         <div className="flex items-center gap-2.5 px-2 mb-2">
