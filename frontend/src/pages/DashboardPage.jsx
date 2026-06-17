@@ -328,8 +328,7 @@ export default function DashboardPage({ onNavigate, params }) {
             <KPICard label="Avg Daily"      value={fmt(analytics.avgDaily)}           sub="per active day" color="var(--warning)" icon="calendar"
               hint="See all expenses" onClick={() => onNavigate?.("transactions", { type: "expense" })} />
             <KPICard label="Subscriptions"  value={fmt(analytics.subscriptionCost)}   sub={`${analytics.subscriptions?.length || 0} active`} color="#8b5cf6" icon="repeat"
-              hint={analytics.subscriptions?.length ? "View subscriptions" : undefined}
-              onClick={analytics.subscriptions?.length ? () => scrollTo(subsRef) : undefined} />
+              hint="View subscriptions" onClick={() => scrollTo(subsRef)} />
             <KPICard label="Next Mo. Forecast" value={fmt(analytics.predictedNextMonth)} sub="recency-weighted" color="#ec4899" icon="trendingUp"
               hint="Full report" onClick={() => onNavigate?.("reports")} />
             <KPICard label="Anomalies"      value={analytics.outliers?.length || 0}   sub="unusual transactions" color="var(--danger)" icon="alertTriangle"
@@ -356,33 +355,43 @@ export default function DashboardPage({ onNavigate, params }) {
             </div>
           </Card>
 
-          {/* Subscription center */}
-          {analytics.subscriptions?.length > 0 && (
-            <div ref={subsRef} className="scroll-mt-20">
+          {/* Subscription center — always shown (with an empty state) so it's discoverable */}
+          <div ref={subsRef} className="scroll-mt-20">
             <Card className="p-5">
               <SectionHeader title="Subscription Center"
-                sub={`${fmt(analytics.subscriptionCost)}/month · ${fmt(analytics.subscriptionCost * 12)}/year recurring — click one to see its payments`} />
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {analytics.subscriptions.map((s, i) => (
-                  <button key={i} onClick={() => onNavigate?.("transactions", { search: s.merchant })}
-                    className="flex items-center justify-between p-3 rounded-xl bg-surface2 border border-stroke hover:border-strokeStrong transition-colors text-left">
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <MerchantAvatar merchant={s.merchant} size={30} />
-                      <div className="min-w-0">
-                        <p className="text-sm text-ink font-medium truncate">{s.merchant}</p>
-                        {s.months > 1 && <p className="text-[11px] text-muted">{s.months} months active</p>}
+                sub={analytics.subscriptions?.length
+                  ? `${fmt(analytics.subscriptionCost)}/month · ${fmt(analytics.subscriptionCost * 12)}/year recurring — click one to see its payments`
+                  : "Recurring charges detected from your statements"} />
+              {analytics.subscriptions?.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {analytics.subscriptions.map((s, i) => (
+                    <button key={i} onClick={() => onNavigate?.("transactions", { search: s.merchant })}
+                      className="flex items-center justify-between p-3 rounded-xl bg-surface2 border border-stroke hover:border-strokeStrong transition-colors text-left">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <MerchantAvatar merchant={s.merchant} size={30} />
+                        <div className="min-w-0">
+                          <p className="text-sm text-ink font-medium truncate">{s.merchant}</p>
+                          {s.months > 1 && <p className="text-[11px] text-muted">{s.months} months active</p>}
+                        </div>
                       </div>
-                    </div>
-                    <div className="text-right flex-shrink-0">
-                      <p className="text-sm font-bold text-ink tnum">{fmt(s.amount)}<span className="text-xs text-muted font-normal">/mo</span></p>
-                      <p className="text-[11px] text-muted tnum">{fmt(s.amount * 12)}/yr</p>
-                    </div>
-                  </button>
-                ))}
-              </div>
+                      <div className="text-right flex-shrink-0">
+                        <p className="text-sm font-bold text-ink tnum">{fmt(s.amount)}<span className="text-xs text-muted font-normal">/mo</span></p>
+                        <p className="text-[11px] text-muted tnum">{fmt(s.amount * 12)}/yr</p>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-6">
+                  <div className="w-10 h-10 mx-auto mb-2 rounded-xl bg-surface2 flex items-center justify-center text-muted">
+                    <Icon name="repeat" size={17} />
+                  </div>
+                  <p className="text-sm text-muted">No subscriptions detected yet.</p>
+                  <p className="text-xs text-faint mt-1 max-w-sm mx-auto">A charge is flagged here once the same merchant bills a similar amount across two or more months. Import a couple of months of statements and your recurring services will show up automatically.</p>
+                </div>
+              )}
             </Card>
-            </div>
-          )}
+          </div>
 
           {/* Anomalies with confirmation */}
           {analytics.outliers?.length > 0 && (
