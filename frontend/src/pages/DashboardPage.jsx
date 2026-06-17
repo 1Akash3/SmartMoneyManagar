@@ -29,6 +29,7 @@ export default function DashboardPage({ onNavigate, params }) {
   const [previewModal, setPreviewModal] = useState(false);
   const [uploadLoading, setUploadLoading] = useState(false);
   const [sampleLoading, setSampleLoading] = useState(false);
+  const [clearing, setClearing] = useState(false);
   const [confirming, setConfirming] = useState(null);
   const [scoreModal, setScoreModal] = useState(false);
   const fileRef = useRef();
@@ -77,6 +78,16 @@ export default function DashboardPage({ onNavigate, params }) {
       toast.success("Sample data loaded — explore away!");
     } catch { toast.error("Couldn't load sample data. Please try again."); }
     finally { setSampleLoading(false); }
+  }
+
+  async function clearSampleData() {
+    setClearing(true);
+    try {
+      await api.clearSample();
+      await refreshAll();
+      toast.success("Sample data cleared.");
+    } catch { toast.error("Couldn't clear sample data. Please try again."); }
+    finally { setClearing(false); }
   }
 
   async function confirmImport() {
@@ -164,6 +175,18 @@ export default function DashboardPage({ onNavigate, params }) {
 
   return (
     <div className="space-y-4">
+
+      {transactions.some(t => t.importId === "sample") && (
+        <div className="flex items-center gap-3 rounded-xl px-4 py-3 bg-surface border border-stroke">
+          <span style={{ color: "var(--info)" }}><Icon name="info" size={16} /></span>
+          <p className="flex-1 text-xs text-ink2">
+            You're exploring with <strong className="text-ink">sample data</strong>. It clears automatically the moment you import or add a real transaction.
+          </p>
+          <Btn size="xs" variant="secondary" onClick={clearSampleData} disabled={clearing}>
+            {clearing ? "Clearing…" : "Clear & start fresh"}
+          </Btn>
+        </div>
+      )}
 
       {/* Toolbar: period + upload */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">

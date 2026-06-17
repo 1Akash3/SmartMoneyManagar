@@ -84,6 +84,7 @@ router.post("/upload", auth, upload.single("file"), async (req, res) => {
     if (!req.file) return res.status(400).json({ error: "No file uploaded." });
     const { valid, issues } = await parseFile(req.file.path);
     if (!valid.length) return res.status(400).json({ error: "No valid transactions found in file.", issues });
+    await dal.deleteTransactionsByImport(req.user.id, "sample"); // a real import replaces demo sample data
     const { fresh, alreadyInSystem } = await dedupeAgainstDb(req.user.id, valid);
     if (!fresh.length) return res.status(400).json({ error: "This statement appears to have been imported already — all rows exist in your data.", issues: { ...issues, alreadyInSystem } });
     const importId = newImportId();
@@ -113,6 +114,7 @@ router.post("/confirm-import", auth, async (req, res) => {
     if (!fs.existsSync(filePath)) return res.status(400).json({ error: "Upload session expired. Please upload the file again." });
     const { valid, issues } = await parseFile(filePath);
     if (!valid.length) return res.status(400).json({ error: "No valid transactions found.", issues });
+    await dal.deleteTransactionsByImport(req.user.id, "sample"); // a real import replaces demo sample data
     const { fresh, alreadyInSystem } = await dedupeAgainstDb(req.user.id, valid);
     if (!fresh.length) {
       fs.unlink(filePath, () => {});
@@ -173,6 +175,7 @@ router.post("/", auth, async (req, res) => {
     if (!date || !merchant || !amount || !category) return res.status(400).json({ error: "Date, merchant, amount and category are required." });
     if (isNaN(parseFloat(amount)) || parseFloat(amount) <= 0) return res.status(400).json({ error: "Amount must be a positive number." });
     if (new Date(date) > new Date()) return res.status(400).json({ error: "Date cannot be in the future." });
+    await dal.deleteTransactionsByImport(req.user.id, "sample"); // real data replaces demo sample data
     const txn = await dal.createTransaction({
       userId: req.user.id, date, merchant: merchant.trim(), amount: parseFloat(amount),
       category, type: type || "expense", paymentMethod: paymentMethod || "",
