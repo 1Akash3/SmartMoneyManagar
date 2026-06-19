@@ -35,7 +35,7 @@ function Logo() {
 }
 
 export default function MainLayout() {
-  const { user, logout, analytics, theme, toggleTheme, transactions, refreshAll } = useApp();
+  const { user, setUser, logout, analytics, theme, toggleTheme, transactions, refreshAll } = useApp();
   const [page, setPage] = useState("dashboard");
   const [pageParams, setPageParams] = useState(null);
   const [sideOpen, setSideOpen] = useState(false);
@@ -49,11 +49,16 @@ export default function MainLayout() {
   const [clearingSample, setClearingSample] = useState(false);
   const [signoutModal, setSignoutModal] = useState(false);
   useEffect(() => {
-    if (analytics && page === "dashboard" && window.innerWidth >= 768 && !localStorage.getItem("tourSeen")) {
-      const t = setTimeout(() => setTour(true), 600);
+    // First-run tutorial — account-level: shows once for a new user and never
+    // again after logout/login (guests excluded). No longer gated on having
+    // data, so brand-new users see it too.
+    if (!user || user.hasSeenTour || localStorage.getItem("tourSeen")) return;
+    if (user.email === "guest@spendsmart.com") return;
+    if (page === "dashboard" && window.innerWidth >= 768) {
+      const t = setTimeout(() => setTour(true), 700);
       return () => clearTimeout(t);
     }
-  }, [analytics, page]);
+  }, [user, page]);
   useEffect(() => {
     const onReplay = () => { setPage("dashboard"); setTimeout(() => setTour(true), 400); };
     window.addEventListener("start-tour", onReplay);
@@ -62,6 +67,10 @@ export default function MainLayout() {
   const closeTour = () => {
     localStorage.setItem("tourSeen", "1");
     setTour(false);
+    if (user && !user.hasSeenTour) {
+      setUser({ ...user, hasSeenTour: true }); // local copy so it won't retrigger this session
+      api.markTourSeen().catch(() => {});       // persist on the account (survives re-login)
+    }
     if (transactions.some(t => t.importId === "sample")) setSampleModal(true); // offer to clear demo data
   };
   async function deleteSample() {

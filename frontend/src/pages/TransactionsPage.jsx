@@ -61,6 +61,12 @@ export default function TransactionsPage({ params }) {
     if (params) { setView("transactions"); setPage(1); }
   }, [params]);
 
+  // The Transactions page is the complete ledger — load EVERY transaction on
+  // mount, independent of the dashboard's period filter (this page has its own
+  // date-range filters). Without this, switching the dashboard to e.g. "30D"
+  // would hide older transactions here too.
+  useEffect(() => { fetchTransactions({}); }, [fetchTransactions]);
+
   async function loadImports() {
     try {
       const { data } = await api.getImports();

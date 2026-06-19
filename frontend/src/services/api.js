@@ -55,6 +55,7 @@ export const resendOtp      = d        => api.post("/auth/resend-otp", d);
 export const login          = d        => api.post("/auth/login", d);
 export const refreshToken   = rt       => api.post("/auth/refresh", { refreshToken: rt });
 export const getMe          = ()       => api.get("/auth/me");
+export const markTourSeen   = ()       => api.post("/auth/seen-tour");
 export const updateProfile  = d        => api.put("/auth/profile", d);
 export const changePassword = d        => api.put("/auth/password", d);
 export const forgotPassword = d        => api.post("/auth/forgot-password", d);

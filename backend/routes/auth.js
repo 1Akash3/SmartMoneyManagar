@@ -85,7 +85,7 @@ router.post("/verify-email", async (req, res) => {
     const accessToken  = signAccess(payload);
     const refreshToken = signRefresh(payload);
     await dal.updateUser(user._id || user.id, { refreshToken });
-    res.json({ accessToken, refreshToken, user: { ...payload, currency: user.currency, monthlyBudget: user.monthlyBudget } });
+    res.json({ accessToken, refreshToken, user: { ...payload, currency: user.currency, monthlyBudget: user.monthlyBudget, hasSeenTour: user.hasSeenTour } });
   } catch (err) {
     console.error("Verify email error:", err.message);
     res.status(500).json({ error: "Verification failed. Please try again." });
@@ -134,7 +134,7 @@ router.post("/login", verifyTurnstile, async (req, res) => {
 
     // Guest login
     if (email === GUEST_EMAIL && password === "guest123") {
-      const g = { id: GUEST_ID, name: "Guest User", email };
+      const g = { id: GUEST_ID, name: "Guest User", email, hasSeenTour: true };
       return res.json({ accessToken: signAccess(g), refreshToken: signRefresh(g), user: g });
     }
 
@@ -148,7 +148,7 @@ router.post("/login", verifyTurnstile, async (req, res) => {
     const accessToken  = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: rememberMe ? "30d" : process.env.JWT_ACCESS_EXPIRY || "1h" });
     const refreshToken = signRefresh(payload);
     await dal.updateUser(user._id || user.id, { refreshToken });
-    res.json({ accessToken, refreshToken, user: { ...payload, currency: user.currency, monthlyBudget: user.monthlyBudget } });
+    res.json({ accessToken, refreshToken, user: { ...payload, currency: user.currency, monthlyBudget: user.monthlyBudget, hasSeenTour: user.hasSeenTour } });
   } catch (err) {
     res.status(500).json({ error: "Login failed. Please try again." });
   }
@@ -228,7 +228,7 @@ router.post("/reset-password", async (req, res) => {
 router.get("/me", auth, async (req, res) => {
   try {
     if (req.user.id === GUEST_ID) {
-      return res.json({ id: GUEST_ID, name: "Guest User", email: GUEST_EMAIL, monthlyBudget: 0, currency: "INR" });
+      return res.json({ id: GUEST_ID, name: "Guest User", email: GUEST_EMAIL, monthlyBudget: 0, currency: "INR", hasSeenTour: true });
     }
     const user = await dal.findUserById(req.user.id);
     if (!user) return res.status(404).json({ error: "User not found." });
@@ -236,6 +236,14 @@ router.get("/me", auth, async (req, res) => {
     const { password, refreshToken, resetToken, resetTokenExpiry, ...safe } = obj;
     res.json(safe);
   } catch { res.status(500).json({ error: "Failed to fetch user." }); }
+});
+
+// Mark the onboarding tour as seen — account-level so it never repeats on re-login.
+router.post("/seen-tour", auth, async (req, res) => {
+  try {
+    if (req.user.id !== GUEST_ID) await dal.updateUser(req.user.id, { hasSeenTour: true });
+    res.json({ success: true });
+  } catch { res.status(500).json({ error: "Failed to update." }); }
 });
 
 // ── Update Profile ────────────────────────────────────────────

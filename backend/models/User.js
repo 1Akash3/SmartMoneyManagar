@@ -14,6 +14,7 @@ const userSchema = new mongoose.Schema({
   avatar: { type: String, default: "" },
   currency: { type: String, default: "INR" },
   monthlyBudget: { type: Number, default: 0 },
+  hasSeenTour: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now },
 });
 

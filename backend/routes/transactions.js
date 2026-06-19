@@ -161,10 +161,14 @@ router.get("/imports", auth, async (req, res) => {
 
 router.delete("/imports/:importId", auth, async (req, res) => {
   try {
-    const deleted = req.params.importId === "legacy"
+    const { importId } = req.params;
+    const deleted = importId === "legacy"
       ? await dal.deleteLegacyUploads(req.user.id)
-      : await dal.deleteTransactionsByImport(req.user.id, req.params.importId);
-    if (!deleted) return res.status(404).json({ error: "Import not found." });
+      : await dal.deleteTransactionsByImport(req.user.id, importId);
+    // Clearing sample data is idempotent: if it was already removed (e.g. by
+    // adding a real transaction, which auto-clears it), that's still success —
+    // only a missing *real* import is a 404.
+    if (!deleted && importId !== "sample") return res.status(404).json({ error: "Import not found." });
     res.json({ success: true, deleted, analytics: await analyticsFor(req.user.id) });
   } catch (err) { res.status(500).json({ error: "Failed to delete import." }); }
 });

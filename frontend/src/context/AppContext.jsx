@@ -53,7 +53,7 @@ function reducer(state, action) {
     case "SET_LOADING":      return { ...state, loading: action.payload };
     case "SET_THEME":        return { ...state, theme: action.payload };
     case "SET_PERIOD":       return { ...state, period: action.payload };
-    case "TXN_ADDED":        return { ...state, transactions: [action.payload, ...state.transactions] };
+    case "TXN_ADDED":        return { ...state, transactions: [action.payload, ...state.transactions.filter(t => t.importId !== "sample")] };
     case "TXN_UPDATED":      return { ...state, transactions: state.transactions.map(t => (t._id || t.id) === action.id ? action.payload : t) };
     case "TXN_DELETED":      return { ...state, transactions: state.transactions.filter(t => (t._id || t.id) !== action.id) };
     case "LOGOUT":           return { ...initial, user: null, theme: state.theme };
