@@ -186,9 +186,23 @@ async function deleteNote(id, userId) {
   return removed;
 }
 
+// Reminders due for an email: pending, with a due date that has arrived, not
+// yet notified. Scanned across all users by the reminder sweep.
+async function getDueReminders(today) {
+  if (isUsingMongo()) return NoteModel.find({ status: "pending", notified: { $ne: true }, dueDate: { $gt: "", $lte: today } });
+  return getStore().notes.filter(n => n.status === "pending" && !n.notified && n.dueDate && n.dueDate <= today);
+}
+
+async function markNoteNotified(id) {
+  if (isUsingMongo()) return NoteModel.findByIdAndUpdate(id, { notified: true }, { new: true });
+  const note = getStore().notes.find(n => n.id === id || n._id === id);
+  if (note) note.notified = true;
+  return note || null;
+}
+
 module.exports = {
   findUserByEmail, findUserById, createUser, updateUser,
   getTransactions, createTransaction, createManyTransactions, updateTransaction, deleteTransaction, deleteTransactionsByImport, deleteLegacyUploads,
   getGoals, createGoal, updateGoal, deleteGoal,
-  getNotes, createNote, updateNote, deleteNote,
+  getNotes, createNote, updateNote, deleteNote, getDueReminders, markNoteNotified,
 };

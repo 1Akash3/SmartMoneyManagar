@@ -35,6 +35,7 @@ app.use("/api/notes",                     require("./routes/notes"));
 app.use("/api/email",                     require("./routes/email"));
 app.use("/api/ai",                        require("./routes/ai"));
 app.use("/api/market",                    require("./routes/market"));
+app.use("/api/cron",                      require("./routes/cron"));
 
 app.get("/", (req, res) => res.json({ status: "SpendSmart v4 API", time: new Date() }));
 
@@ -51,5 +52,10 @@ async function start() {
     console.log(`\n🚀 SpendSmart v4 running → http://localhost:${PORT}`);
     console.log(`   DB: ${process.env.MONGODB_URI ? "MongoDB Atlas" : "In-Memory (no MONGODB_URI set)"}\n`);
   });
+  // Hourly reminder sweep while the server is awake. On the free tier (which
+  // sleeps after ~15 min), an external cron hitting /api/cron/run is the
+  // reliable trigger — and keeps the server warm for the AI assistant too.
+  const { sendDueReminders } = require("./utils/reminders");
+  setInterval(() => sendDueReminders().catch(e => console.error("[Reminders]", e.message)), 60 * 60 * 1000);
 }
 start();

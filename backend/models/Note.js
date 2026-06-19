@@ -8,6 +8,7 @@ const noteSchema = new mongoose.Schema({
   dueDate: { type: String },
   priority: { type: String, enum: ["low", "medium", "high"], default: "medium" },
   status: { type: String, enum: ["pending", "done", "overdue"], default: "pending" },
+  notified: { type: Boolean, default: false }, // reminder email sent for this due date
   createdAt: { type: Date, default: Date.now },
 });
 
