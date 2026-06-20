@@ -16,7 +16,7 @@ function PasswordInput({ label, value, onChange, placeholder, error }) {
           placeholder={placeholder}
           className={`w-full bg-surface2 border rounded-xl px-3.5 py-2.5 text-sm text-ink placeholder-faint pr-11 transition-colors ${error ? "border-danger" : "border-stroke"}`}
           style={{ outline: "none" }} />
-        <button type="button" onClick={() => setShow(s => !s)} tabIndex={-1}
+        <button type="button" onClick={() => setShow(s => !s)} tabIndex={-1} aria-label={show ? "Hide password" : "Show password"}
           className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-ink transition-colors bg-transparent border-0">
           <Icon name={show ? "eyeOff" : "eye"} size={15} />
         </button>

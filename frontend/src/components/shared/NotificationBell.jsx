@@ -53,7 +53,7 @@ export default function NotificationBell() {
 
   return (
     <div className="relative" ref={ref}>
-      <button onClick={toggle}
+      <button onClick={toggle} aria-label="Notifications" aria-expanded={open}
         className="w-8 h-8 flex items-center justify-center rounded-xl bg-surface2 border border-stroke text-ink2 hover:text-ink transition-colors relative">
         <Icon name="bell" size={15} />
         {count > 0 && (

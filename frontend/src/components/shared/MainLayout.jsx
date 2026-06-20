@@ -165,7 +165,7 @@ export default function MainLayout() {
         <header className="h-14 bg-surface border-b border-stroke flex items-center justify-between px-4 md:px-6 sticky top-0 z-20">
           <div className="flex items-center gap-3">
             <button className="md:hidden w-8 h-8 flex items-center justify-center rounded-lg text-muted hover:bg-surface2 border-0 bg-transparent"
-              onClick={() => setSideOpen(true)}>
+              onClick={() => setSideOpen(true)} aria-label="Open menu">
               <Icon name="menu" size={18} />
             </button>
             <div>
