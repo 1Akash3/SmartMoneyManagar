@@ -1,6 +1,28 @@
-# 💸 SpendSmart v4 — AI-Powered Financial Intelligence Platform
+# 💸 SpendSmart — AI-Powered Financial Intelligence Platform
 
-Full-stack fintech analytics platform. React + Node.js + Express + MongoDB Atlas + Cloudflare Turnstile + Brevo SMTP.
+> A full-stack fintech analytics platform that turns raw bank statements (CSV / XLSX / **PDF**) into real-time spending insights, an AI financial assistant, savings goals, and emailed PDF reports — wrapped in an installable PWA.
+
+<p align="left">
+  <img alt="React" src="https://img.shields.io/badge/React_18-20232A?logo=react&logoColor=61DAFB" />
+  <img alt="Vite" src="https://img.shields.io/badge/Vite_5-646CFF?logo=vite&logoColor=white" />
+  <img alt="Node.js" src="https://img.shields.io/badge/Node.js-339933?logo=node.js&logoColor=white" />
+  <img alt="Express" src="https://img.shields.io/badge/Express-000000?logo=express&logoColor=white" />
+  <img alt="MongoDB" src="https://img.shields.io/badge/MongoDB_Atlas-47A248?logo=mongodb&logoColor=white" />
+  <img alt="Tailwind" src="https://img.shields.io/badge/Tailwind_CSS-06B6D4?logo=tailwindcss&logoColor=white" />
+  <img alt="Anthropic" src="https://img.shields.io/badge/Claude_AI-D97757?logo=anthropic&logoColor=white" />
+  <img alt="PWA" src="https://img.shields.io/badge/PWA-5A0FC8?logo=pwa&logoColor=white" />
+</p>
+
+### 🧰 Tech Stack
+
+| Layer | Technologies |
+|---|---|
+| **Frontend** | React 18, Vite 5, Tailwind CSS, Framer Motion, Recharts, React Hot Toast, vite-plugin-pwa, Capacitor (Android) |
+| **Backend** | Node.js, Express, Mongoose, JWT (access + refresh), bcrypt, Helmet, express-rate-limit, express-mongo-sanitize |
+| **Data / AI** | MongoDB Atlas (in-memory fallback), Anthropic Claude (AI assistant + rule-based fallback), PapaParse, xlsx, pdf-parse |
+| **Integrations** | Cloudflare Turnstile (captcha), Brevo SMTP (email + reports), node-cron keep-alive |
+
+> 🎓 **Portfolio note:** Built solo as a production-style fintech app. Highlights: a CSV/XLSX/**PDF** ingestion pipeline, a real analytics engine (health score, outlier detection, spend prediction), security hardening (NoSQL-injection blocking, rate limiting, captcha), and graceful degradation everywhere (DB→in-memory, email→PDF, captcha→pass).
 
 ---
 

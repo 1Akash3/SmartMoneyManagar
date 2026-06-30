@@ -10,6 +10,7 @@ build/
 .env.local
 .env.*.local
 backend/.env
+frontend/.env
 SMTP creds.txt
 
 # Uploaded user files (personal financial data — never commit)
